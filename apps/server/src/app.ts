@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { API_ROUTES } from '@e-pocket-assignment/shared/routes';
 import healthcheckRouter from "./routes/healthcheck.routes.ts"
 import authRouter from "./routes/auth.routes.ts";
+import { errorMiddleware } from './middlewares/error.middleware.ts';
 
 const app = express()
 
@@ -23,4 +24,5 @@ app.use(`${API_ROUTES.AUTH}`, authRouter)
 // app.use("/api/v1/tweets", tweetRouter)
 // app.use("/api/v1/subscriptions", subscriptionRouter)
 
+app.use(errorMiddleware);
 export { app };

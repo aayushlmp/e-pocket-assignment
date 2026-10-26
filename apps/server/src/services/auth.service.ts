@@ -33,7 +33,6 @@ export class AuthService {
    * Signs a user in by validating credentials and updating their refresh token
    */
   async signIn(email: string, plainPassword: string) {
-    // 1. Explicitly select the password hash since it is set to hidden in your entity
     const user = await this.userRepository
       .createQueryBuilder('user')
       .addSelect('user.password') 
@@ -45,7 +44,10 @@ export class AuthService {
     }
 
     if (user.status !== Status.ACTIVE) {
-      throw new Error('Your account is inactive');
+      throw new ApiError(
+        403, 
+        "Your account is currently inactive. Please contact support to reactivate your access."
+      );
     }
 
     // 2. Securely verify the password hash using Bcrypt
@@ -73,7 +75,7 @@ export class AuthService {
   async signOut(id: string): Promise<void> {
     const user = await this.userRepository.findOneBy({ id: id });
     if (user) {
-      user.refresh_token = '';
+      user.refreshToken = '';
       await this.userRepository.save(user);
     }
   }

@@ -8,35 +8,36 @@ export class User {
     @IsUUID()
     id!: string;
 
-    @Column({type: "varchar"})
+    @Column({type: "varchar", name:"first_name"})
     @IsNotEmpty()
-    first_name!: string;
+    firstName!: string;
 
-    @Column({type: "varchar"})
+    @Column({type: "varchar", name:"last_name"})
     @IsNotEmpty()
-    last_name!: string;
+    lastName!: string;
 
-    @Column({type: "varchar"})
+    @Column({type: "varchar", name:"user_name"})
     @IsNotEmpty()
-    user_name!: string;
+    userName!: string;
 
-    @Column({type: "varchar", unique: true})
+    @Column({type: "varchar", unique: true, name:"email"})
     @IsNotEmpty()
     @IsEmail({}, { message: "Invalid email address" })
     email!: string;
 
-    @Column({type: "varchar"})
+    @Column({type: "varchar", name:"password"})
     @IsNotEmpty()
     @MinLength(8, { message: 'Password must be at least 8 characters long.' })
     password!: string;
 
-    @Column({type: "varchar"})
-    refresh_token!: string;
+    @Column({type: "varchar", name:"refresh_token"})
+    refreshToken!: string;
 
     @Column({
         type: "enum",
         enum: Status,
         default: Status.ACTIVE,
+        name:"status"
     })
     status!: Status
 
@@ -44,12 +45,13 @@ export class User {
         type: "enum",
         enum: UserRole,
         default: UserRole.USER,
+        name:"role"
     })
     role!: UserRole
 
-    @CreateDateColumn({type: "timestamp"})
-    created_at!: Date;
+    @CreateDateColumn({type: "timestamp", name:"created_at"})
+    createdAt!: Date;
 
-    @UpdateDateColumn({type: "timestamp"})
-    updated_at!: Date;
+    @UpdateDateColumn({type: "timestamp", name:"updated_at"})
+    updatedAt!: Date;
 }

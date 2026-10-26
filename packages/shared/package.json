@@ -17,6 +17,10 @@
     "./routes": {
       "types": "./dist/routes/api.routes.d.ts",
       "import": "./dist/routes/api.routes.js"
+    },
+    "./interfaces": {
+      "types": "./dist/interfaces/index.d.ts",
+      "import": "./dist/interfaces/index.js"
     }
   },
   "scripts": {

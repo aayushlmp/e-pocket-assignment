@@ -8,5 +8,4 @@ router.route("/login").post(signIn);
 
 //secured routes
 router.route("/logout").post(verifyJWT,  signOut);
-// router.route("/refresh-token").post(refreshAccessToken)
 export default router;

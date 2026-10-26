@@ -2,7 +2,7 @@ import { AppDataSource } from "../db/index.ts";
 import { User } from "../entities/User.entity.ts";
 import { ApiError } from "../utils/api-error.ts";
 import { asyncHandler } from "../utils/async-handler.ts";
-import jwt from "jsonwebtoken";
+import jwt, { type JwtPayload } from "jsonwebtoken";
 import { Response, NextFunction } from "express";
 import { AuthenticatedRequest } from "../interfaces/token.interface.ts";
 
@@ -18,11 +18,17 @@ export const verifyJWT = asyncHandler(
       if (!token) {
         throw new ApiError(401, "Unauthorized request");
       }
+      const secret = process.env.ACCESS_TOKEN_SECRET;
 
-      const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      if (!secret) {
+        // Configuration problem, not an authentication failure.
+        throw new Error("ACCESS_TOKEN_SECRET is not configured");
+      }
+
+      const decodedToken = jwt.verify(token, secret);
 
       const user: User | null = await userRepository.findOneBy({
-        id: decodedToken.id,
+        id: (decodedToken as JwtPayload).id,
       });
 
       if (!user) {

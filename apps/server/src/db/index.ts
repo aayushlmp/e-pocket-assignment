@@ -18,7 +18,7 @@ const options = {
     database: process.env.DB_NAME,
     synchronize: true, // Auto-creates database tables on start (Turn off in production)
     logging: false,
-    entities: [User, Transaction, Note, TransactionAuditHistory], // NodeNext looks for compiled JS paths
+    entities: [User, Transaction, Note, TransactionAuditHistory],
     migrations: [],
     subscribers: [],
 } as DataSourceOptions;

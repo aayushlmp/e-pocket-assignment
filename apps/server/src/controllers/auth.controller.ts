@@ -7,7 +7,6 @@ import { ApiError } from "../utils/api-error.ts";
 import { ApiResponse } from "../utils/api-response.ts";
 import { AuthenticatedRequest } from "../interfaces/token.interface.ts";
 
-// Instantiate Service layer manually with the User repository instance
 const userRepository = AppDataSource.getRepository(User);
 const authService = new AuthService(userRepository);
 
@@ -21,7 +20,7 @@ const signIn = asyncHandler(
     const { accessToken, refreshToken } = loggedInUser;
     const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // true in prod, false in local dev over http
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict' as const,
         maxAge: 7 * 24 * 60 * 60 * 1000 // Example: 7 days expiration line
     };

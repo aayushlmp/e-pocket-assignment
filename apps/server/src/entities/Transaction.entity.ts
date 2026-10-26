@@ -26,7 +26,6 @@ export class Transaction {
     @IsNotEmpty()
     target_currency_code!: string;
 
-    // Pro-Tip: Use decimal/numeric types for financial data. float can cause rounding issues.
     @Column({ type: "decimal", precision: 10, scale: 2 })
     amount!: number;
 

@@ -1,11 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
-import { IsEmail, IsNotEmpty, MinLength, IsUUID } from "class-validator";
-
-export enum UserRole {
-    ADMIN = "admin",
-    EDITOR = "editor",
-    GHOST = "ghost",
-}
+import { IsNotEmpty, IsUUID } from "class-validator";
+import { TransactionStatus } from '@e-pocket-assignment/shared/enums';
 
 @Entity()
 export class TransactionAuditHistory {
@@ -24,11 +19,19 @@ export class TransactionAuditHistory {
     @IsUUID()
     transaction_id!: string;
 
-    @Column({type: "varchar"})
-    last_status!: string;
+    @Column({
+        type: "enum",
+        enum: TransactionStatus,
+        default: TransactionStatus.PENDING,
+    })
+    last_status!: TransactionStatus
 
-    @Column({type: "varchar"})
-    status!: string;
+    @Column({
+        type: "enum",
+        enum: TransactionStatus,
+        default: TransactionStatus.PENDING,
+    })
+    status!: TransactionStatus
 
     @CreateDateColumn({type: "timestamp"})
     created_at!: Date;

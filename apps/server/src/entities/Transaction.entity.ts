@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
 import { IsNotEmpty, IsUUID } from "class-validator";
 import { Note } from "../entities/Note.entity.ts"
+import { TransactionStatus } from '@e-pocket-assignment/shared/enums';
 
 @Entity(`transactions`)
 export class Transaction {
@@ -35,8 +36,12 @@ export class Transaction {
     @Column({ type: "decimal", precision: 10, scale: 2 })
     fees!: number;
 
-    @Column({type: "varchar"})
-    status!: string;
+    @Column({
+        type: "enum",
+        enum: TransactionStatus,
+        default: TransactionStatus.PENDING,
+    })
+    status!: TransactionStatus
 
     @CreateDateColumn({type: "timestamp"})
     created_at!: Date;

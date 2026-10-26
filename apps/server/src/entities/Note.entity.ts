@@ -2,13 +2,6 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { IsNotEmpty } from "class-validator";
 import { Transaction } from "./Transaction.entity.ts";
 
-
-export enum UserRole {
-    ADMIN = "admin",
-    EDITOR = "editor",
-    GHOST = "ghost",
-}
-
 @Entity('notes')
 export class Note {
     @PrimaryGeneratedColumn("uuid")

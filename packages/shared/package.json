@@ -13,6 +13,10 @@
     "./enums": {
       "types": "./dist/enums/index.d.ts",
       "import": "./dist/enums/index.js"
+    },
+    "./routes": {
+      "types": "./dist/routes/api.routes.d.ts",
+      "import": "./dist/routes/api.routes.js"
     }
   },
   "scripts": {

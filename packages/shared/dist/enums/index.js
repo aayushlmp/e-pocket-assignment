@@ -1,6 +1,6 @@
 export var UserRole;
 (function (UserRole) {
-    UserRole["SUPER_ADMIN"] = "Super_Admin";
+    UserRole["SUPER_ADMIN"] = "Super Admin";
     UserRole["ADMIN"] = "Admin";
     UserRole["USER"] = "User";
 })(UserRole || (UserRole = {}));

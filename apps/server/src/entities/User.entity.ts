@@ -30,6 +30,9 @@ export class User {
     @MinLength(8, { message: 'Password must be at least 8 characters long.' })
     password!: string;
 
+    @Column({type: "varchar"})
+    refresh_token!: string;
+
     @Column({
         type: "enum",
         enum: Status,

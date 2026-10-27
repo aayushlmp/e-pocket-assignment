@@ -12,7 +12,7 @@ export interface User {
     updatedAt: Date;
 }
 
-export interface Note {
+export interface INote {
     id: string;
     comment: string;
     userId: string;
@@ -32,7 +32,7 @@ export interface ITransaction {
     status: TransactionStatus
     createdAt?: Date;
     updatedAt?: Date;
-    notes?: Note[];
+    notes?: INote[];
 }
 export interface QueryParamOption {
   page?: number;

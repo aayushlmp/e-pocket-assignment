@@ -1,7 +1,9 @@
-
 import { Repository } from "typeorm";
 import { Transaction } from "../entities/Transaction.entity.ts";
-import { ITransaction, QueryParamOption } from "@e-pocket-assignment/shared/interfaces"
+import {
+  ITransaction,
+  QueryParamOption,
+} from "@e-pocket-assignment/shared/interfaces";
 import { ApiError } from "../utils/api-error.ts";
 
 export class TransactionService {
@@ -11,20 +13,22 @@ export class TransactionService {
       const page = Number(query.page) || 1;
       const limit = Number(query.limit) || 10;
       const skip = (page - 1) * limit;
-      
-      const sortBy = query.sortBy || 'createdAt';
-      const order = query.order === 'ASC' ? 'ASC' : 'DESC';
 
-      const queryBuilder = this.transactionRepository.createQueryBuilder('transaction');
+      const sortBy = query.sortBy || "createdAt";
+      const order = query.order === "ASC" ? "ASC" : "DESC";
+
+      const queryBuilder =
+        this.transactionRepository.createQueryBuilder("transaction");
 
       if (query.status) {
-        queryBuilder.andWhere('transaction.status = :status', { status: query.status });
+        queryBuilder.andWhere("transaction.status = :status", {
+          status: query.status,
+        });
       }
 
       if (query.search) {
-        console.log("query.search",query)
         queryBuilder.andWhere(
-          '(transaction.customerName LIKE :search OR transaction.sourceCurrencyCode LIKE :search OR transaction.targetCurrencyCode LIKE :search)',
+          "(transaction.customerName LIKE :search OR transaction.sourceCurrencyCode LIKE :search OR transaction.targetCurrencyCode LIKE :search)",
           { search: `%${query.search}%` }
         );
       }
@@ -44,20 +48,30 @@ export class TransactionService {
           limit,
           totalPages: Math.ceil(total / limit),
           currentPage: page,
-          query
-        }
+          query,
+        },
       };
     } catch (error) {
-      throw new ApiError(500, "Failed to retrieve transactions");
+      if (error instanceof ApiError) {
+        throw new ApiError(
+          error.statusCode || 500,
+          error.message ?? "Failed to delete transaction details"
+        );
+      }
     }
   }
-  async getTransactionById(id: string){
+  async getTransactionById(id: string) {
     try {
       const transaction = await this.transactionRepository.findOne({
         where: { id },
         relations: {
-          notes: true 
-        }
+          notes: true,
+        },
+        order: {
+          notes: {
+            createdAt: "DESC",
+          },
+        },
       });
 
       if (!transaction) {
@@ -67,22 +81,62 @@ export class TransactionService {
       return transaction;
     } catch (error) {
       if (error instanceof ApiError) {
-        throw new ApiError(500, "Failed to retrieve transaction details");
+        throw new ApiError(
+          error.statusCode || 500,
+          error.message ?? "Failed to delete transaction details"
+        );
       }
     }
   }
-  async save(transaction: ITransaction): Promise<Transaction> {
+  async getTransactionsByUserId(id: string) {
+    try {
+      const transaction = await this.transactionRepository.find({
+        where: { customerId: id },
+        // select: {
+        //   notes: {
+        //     id: true,
+        //     comment: true,
+        //   },
+        // },
+        relations: {
+          notes: true,
+        },
+        order: {
+          notes: {
+            createdAt: "DESC",
+          },
+        },
+      });
+
+      if (!transaction) {
+        throw new ApiError(404, `Transactions for USER ${id} not found`);
+      }
+      return transaction;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw new ApiError(
+          error.statusCode || 500,
+          error.message ?? "Failed to fetch transactions"
+        );
+      }
+    }
+  }
+  async save(transaction: ITransaction) {
     try {
       return await this.transactionRepository.save(transaction);
     } catch (error) {
-      console.error("Database save failed:", error);
-      throw new ApiError(500, "Failed to create transaction due to a database error");
+      if (error instanceof ApiError) {
+        throw new ApiError(
+          error.statusCode || 500,
+          error.message ?? "Failed to add transaction details"
+        );
+      }
     }
   }
   async update(id: string, transaction: Partial<ITransaction>) {
     try {
       const existingTransaction = await this.transactionRepository.findOne({
-        where: { id }
+        where: { id },
       });
 
       if (!existingTransaction) {
@@ -90,24 +144,26 @@ export class TransactionService {
       }
 
       const updatedTransaction = this.transactionRepository.merge(
-        existingTransaction, 
+        existingTransaction,
         transaction
       );
-
       return await this.transactionRepository.save(updatedTransaction);
     } catch (error) {
       if (error instanceof ApiError) {
-        throw new ApiError(error.statusCode || 500, (error.message ?? "Failed to delete transaction details"));
+        throw new ApiError(
+          error.statusCode || 500,
+          error.message ?? "Failed to delete transaction details"
+        );
       }
     }
   }
-  async delete(id: string){
+  async delete(id: string) {
     try {
       const transaction = await this.transactionRepository.findOne({
         where: { id },
         relations: {
-          notes: true 
-        }
+          notes: true,
+        },
       });
 
       if (!transaction) {
@@ -116,7 +172,10 @@ export class TransactionService {
       return await this.transactionRepository.remove(transaction);
     } catch (error) {
       if (error instanceof ApiError) {
-        throw new ApiError(error.statusCode || 500, (error.message ?? "Failed to delete transaction details"));
+        throw new ApiError(
+          error.statusCode || 500,
+          error.message ?? "Failed to delete transaction details"
+        );
       }
     }
   }

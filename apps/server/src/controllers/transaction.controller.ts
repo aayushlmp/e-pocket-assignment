@@ -6,15 +6,44 @@ import { TransactionService } from "../services/transaction.service.ts";
 import { asyncHandler } from "../utils/async-handler.ts";
 import { ApiResponse } from "../utils/api-response.ts";
 import { TransactionStatus } from "@e-pocket-assignment/shared/enums";
-import { QueryParamOption } from "@e-pocket-assignment/shared/interfaces";
+import {
+  QueryParamOption,
+  TransactionStausHistory,
+} from "@e-pocket-assignment/shared/interfaces";
 import { ApiError } from "../utils/api-error.ts";
 import { Note } from "../entities/Note.entity.ts";
 import { NoteService } from "../services/note.service.ts";
+import { TransactionAuditHistory } from "../entities/TransactionAuditHistory.entity.ts";
+import { TransactionHistoryService } from "../services/transaction-history.service.ts";
 
 const transactionRepository = AppDataSource.getRepository(Transaction);
 const noteRepository = AppDataSource.getRepository(Note);
+const transactionHistoryRepository = AppDataSource.getRepository(
+  TransactionAuditHistory
+);
 const transactionService = new TransactionService(transactionRepository);
 const noteService = new NoteService(noteRepository);
+const transactionHistoryService = new TransactionHistoryService(
+  transactionHistoryRepository
+);
+const updateTransactionHistory = (
+  transactionId: string,
+  userId: string,
+  status: TransactionStatus,
+  lastStatus?: TransactionStatus
+) => {
+  if (transactionId) {
+    const payload = {
+      transactionId,
+      userId,
+      status,
+      ...(lastStatus && { lastStatus }),
+    } as TransactionStausHistory;
+    if (!lastStatus || lastStatus !== status) {
+      transactionHistoryService.save(payload);
+    }
+  }
+};
 
 const list = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { page, limit, search, sortBy, order, status } = req.query;
@@ -81,6 +110,9 @@ const create = asyncHandler(
   async (req: AuthenticatedRequest, res: Response) => {
     const transaction = await transactionService.save(req.body);
     if (transaction) {
+      const userId = req.user?.id as string;
+      const { id: transactionId, status } = transaction;
+      updateTransactionHistory(transactionId, userId, status);
       return res
         .status(201)
         .json(
@@ -96,8 +128,17 @@ const update = asyncHandler(
     if (!id) {
       throw new ApiError(404, `Transaction with ID ${id} not found`);
     }
+    const lastTransaction = await transactionService.getTransactionStatusById(
+      id as string
+    );
+    const { status: lastStatus } = lastTransaction as {
+      id: string;
+      status: TransactionStatus;
+    };
     const transaction = await transactionService.update(id as string, req.body);
-
+    const userId = req.user?.id as string;
+    const { status } = req.body;
+    updateTransactionHistory(id as string, userId, status, lastStatus);
     return res
       .status(200)
       .json(

@@ -19,28 +19,31 @@ export class TransactionAuditHistory {
   @IsUUID()
   userId!: string;
 
-  @Column({ type: "uuid" })
+  @Column({ type: "uuid", name: "transaction_id" })
   @IsNotEmpty()
   @IsUUID()
-  transaction_id!: string;
+  transactionId!: string;
 
   @Column({
     type: "enum",
+    name: "last_status",
     enum: TransactionStatus,
-    default: TransactionStatus.PENDING,
+    default: null,
+    nullable: true,
   })
-  last_status!: TransactionStatus;
+  lastStatus!: TransactionStatus;
 
   @Column({
     type: "enum",
+    name: "status",
     enum: TransactionStatus,
     default: TransactionStatus.PENDING,
   })
   status!: TransactionStatus;
 
-  @CreateDateColumn({ type: "timestamp" })
-  created_at!: Date;
+  @CreateDateColumn({ type: "timestamp", name: "created_at" })
+  createdAt!: Date;
 
-  @UpdateDateColumn({ type: "timestamp" })
-  updated_at!: Date;
+  @UpdateDateColumn({ type: "timestamp", name: "updated_at" })
+  updatedAt!: Date;
 }

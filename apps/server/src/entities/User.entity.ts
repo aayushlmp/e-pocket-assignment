@@ -1,57 +1,63 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { IsEmail, IsNotEmpty, MinLength, IsUUID } from "class-validator";
-import { UserRole, Status } from '@e-pocket-assignment/shared/enums';
+import { UserRole, Status } from "@e-pocket-assignment/shared/enums";
 
 @Entity(`users`)
 export class User {
-    @PrimaryGeneratedColumn("uuid")
-    @IsUUID()
-    id!: string;
+  @PrimaryGeneratedColumn("uuid")
+  @IsUUID()
+  id!: string;
 
-    @Column({type: "varchar", name:"first_name"})
-    @IsNotEmpty()
-    firstName!: string;
+  @Column({ type: "varchar", name: "first_name" })
+  @IsNotEmpty()
+  firstName!: string;
 
-    @Column({type: "varchar", name:"last_name"})
-    @IsNotEmpty()
-    lastName!: string;
+  @Column({ type: "varchar", name: "last_name" })
+  @IsNotEmpty()
+  lastName!: string;
 
-    @Column({type: "varchar", name:"user_name"})
-    @IsNotEmpty()
-    userName!: string;
+  @Column({ type: "varchar", name: "user_name" })
+  @IsNotEmpty()
+  userName!: string;
 
-    @Column({type: "varchar", unique: true, name:"email"})
-    @IsNotEmpty()
-    @IsEmail({}, { message: "Invalid email address" })
-    email!: string;
+  @Column({ type: "varchar", unique: true, name: "email" })
+  @IsNotEmpty()
+  @IsEmail({}, { message: "Invalid email address" })
+  email!: string;
 
-    @Column({type: "varchar", name:"password"})
-    @IsNotEmpty()
-    @MinLength(8, { message: 'Password must be at least 8 characters long.' })
-    password!: string;
+  @Column({ type: "varchar", name: "password", select: false })
+  @IsNotEmpty()
+  @MinLength(8, { message: "Password must be at least 8 characters long." })
+  password!: string;
 
-    @Column({type: "varchar", name:"refresh_token"})
-    refreshToken!: string;
+  @Column({ type: "varchar", name: "refresh_token" })
+  refreshToken!: string;
 
-    @Column({
-        type: "enum",
-        enum: Status,
-        default: Status.ACTIVE,
-        name:"status"
-    })
-    status!: Status
+  @Column({
+    type: "enum",
+    enum: Status,
+    default: Status.ACTIVE,
+    name: "status",
+  })
+  status!: Status;
 
-    @Column({
-        type: "enum",
-        enum: UserRole,
-        default: UserRole.USER,
-        name:"role"
-    })
-    role!: UserRole
+  @Column({
+    type: "enum",
+    enum: UserRole,
+    default: UserRole.USER,
+    name: "role",
+  })
+  role!: UserRole;
 
-    @CreateDateColumn({type: "timestamp", name:"created_at"})
-    createdAt!: Date;
+  @CreateDateColumn({ type: "timestamp", name: "created_at" })
+  createdAt!: Date;
 
-    @UpdateDateColumn({type: "timestamp", name:"updated_at"})
-    updatedAt!: Date;
+  @UpdateDateColumn({ type: "timestamp", name: "updated_at" })
+  updatedAt!: Date;
 }

@@ -121,6 +121,30 @@ export class TransactionService {
       }
     }
   }
+  async getTransactionStatusById(id: string) {
+    try {
+      const transaction = await this.transactionRepository.findOne({
+        where: { id },
+        select: {
+          id: true,
+          status: true,
+        },
+      });
+
+      if (!transaction) {
+        throw new ApiError(404, `Transaction with ID ${id} not found`);
+      }
+
+      return { id: transaction.id, status: transaction.status };
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw new ApiError(
+          error.statusCode || 500,
+          error.message ?? "Failed to fetch transaction status"
+        );
+      }
+    }
+  }
   async save(transaction: ITransaction) {
     try {
       return await this.transactionRepository.save(transaction);

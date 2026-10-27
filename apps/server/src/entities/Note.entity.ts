@@ -1,28 +1,30 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm";
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsUUID, IsOptional } from "class-validator";
 import { Transaction } from "./Transaction.entity.ts";
 
 @Entity('notes')
 export class Note {
     @PrimaryGeneratedColumn("uuid")
+    @IsUUID()
+    @IsOptional()
     id!: string;
 
-    @Column({type: "varchar"})
+    @Column({type: "varchar", name: "comment"})
     comment!: string;
 
     @Column({type: "uuid"})
     @IsNotEmpty()
-    user_id!: string;
+    userId!: string;
 
     @Column({type: "uuid"})
     @IsNotEmpty()
-    transaction_id!: string;
+    transactionId!: string;
 
-    @CreateDateColumn({type: "timestamp"})
-    created_at!: Date;
+    @CreateDateColumn({type: "timestamp", name: "created_at"})
+    createdAt!: Date;
 
-    @UpdateDateColumn({type: "timestamp"})
-    updated_at!: Date;
+    @UpdateDateColumn({type: "timestamp", name: "updated_at"})
+    updatedAt!: Date;
 
     @ManyToOne(() => Transaction, (transaction) => transaction.notes) 
     @JoinColumn({ name: 'transaction_id' })

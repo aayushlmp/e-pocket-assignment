@@ -8,7 +8,7 @@ export interface TokenPayload {
     role: UserRole;
 }
 export interface AuthenticatedRequest extends Request {
-    user?: User;
+    user?: Partial<User>;
 }
 export interface LoggedInUserResponse {
     accessToken: string;

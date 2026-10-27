@@ -11,5 +11,8 @@
     "dev:client": "npm run dev --workspace=@e-pocket-assignment/client",
     "dev:server": "npm run dev --workspace=@e-pocket-assignment/server",
     "build": "npm run build --workspace=@e-pocket-assignment/shared && npm run build --workspace=@e-pocket-assignment/server && npm run build --workspace=@e-pocket-assignment/client"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
   }
 }

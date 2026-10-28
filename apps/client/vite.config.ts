@@ -11,5 +11,22 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  build: {
+    rolldownOptions: {
+      checks: {
+        bundlerTimings: false,
+      },
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: "vendor'",
+              test: /node_modules[\\/](react(-dom)?|lucide-react)/,
+              priority: 20,
+            },
+          ],
+        },
+      },
+    },
+  },
 });
-

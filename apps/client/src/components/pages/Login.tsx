@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 const Login = () => {
-  const handleLogin = (event: MouseEvent) => {
+  const handleLogin = (event: React.SubmitEvent) => {
     event.preventDefault();
     console.log(`handle login`)
   }

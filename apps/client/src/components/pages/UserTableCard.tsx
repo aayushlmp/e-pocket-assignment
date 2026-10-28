@@ -1,7 +1,8 @@
 import { DataTable } from "@/components/pages/DataTable";
 
-export const UserTableCard = () => {
+const UserTableCard = () => {
     return (
         <DataTable />
     )
 }
+export default UserTableCard

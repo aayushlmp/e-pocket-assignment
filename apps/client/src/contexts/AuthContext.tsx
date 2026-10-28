@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }: any) => {
   // Replace this with actual auth logic (tokens, API check, etc.)

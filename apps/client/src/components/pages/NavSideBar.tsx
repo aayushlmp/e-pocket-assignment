@@ -6,15 +6,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
   BanknoteArrowUp,
   UserGroup,
-  GalleryVerticalEnd,
 } from "lucide-react";
 import { MainNavigation } from "@/components/pages/MainNavigation";
 import { NavUser } from "@/components/pages/NavUser";
+import { Logo } from "@/components/pages/Logo";
 
 const navigations = {
   user: {
@@ -42,23 +43,17 @@ const navigations = {
 };
 
 export const NavSideBar = ({ ...props }) => {
+  const {state} = useSidebar();
+  const logo = state === "collapsed" ? `/remittance-logo.svg` : `/logo.svg`;
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" variant="sidebar" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             {/* Swapped asChild to the render prop syntax */}
             <SidebarMenuButton
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
               render={
-                <a href="#">
-                  <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                    <GalleryVerticalEnd className="size-4" />
-                  </div>
-                  <span className="text-base font-semibold">
-                    Remittance Inc.
-                  </span>
-                </a>
+                <Logo src={logo} />
               }
             />
           </SidebarMenuItem>

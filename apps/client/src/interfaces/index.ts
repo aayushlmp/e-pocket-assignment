@@ -1,3 +1,4 @@
+export type environment = "dev" | "staging" | "prod";
 export interface CardWrapperProps {
   /** The main dynamic component, form, chart, or layout inside the card */
   children?: React.ReactNode;
@@ -13,4 +14,10 @@ export interface CardWrapperProps {
   footer?: React.ReactNode;
   /** Additional Tailwind styling overrides for the card shell container */
   className?: string;
+}
+export interface AppConfig {
+  API_URL: string;
+  APP_VERSION: string;
+  APP_ENV: environment;
+  ENABLE_ANALYTICS?: boolean;
 }

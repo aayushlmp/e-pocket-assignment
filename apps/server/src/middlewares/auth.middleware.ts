@@ -11,35 +11,68 @@ const userRepository = AppDataSource.getRepository(User);
 export const verifyJWT = asyncHandler(
   async (req: AuthenticatedRequest, _: Response, next: NextFunction) => {
     try {
-      const token =
-        req.cookies?.accessToken ||
-        req.header("Authorization")?.replace("Bearer ", "");
+      // 1. Extract token cleanly
+      const authHeader = req.header("Authorization");
+      const token = authHeader?.replace(/^Bearer\s+/i, "");
+      // const token =
+      //   req.cookies?.accessToken || authHeader?.replace(/^Bearer\s+/i, "");
 
       if (!token) {
-        throw new ApiError(401, "Unauthorized request");
+        throw new ApiError(401, "Unauthorized request: No token provided");
       }
+
       const secret = process.env.ACCESS_TOKEN_SECRET;
-
       if (!secret) {
-        // Configuration problem, not an authentication failure.
-        throw new Error("ACCESS_TOKEN_SECRET is not configured");
+        // Log this internally so developers see it, but don't leak details to the client
+        console.error(
+          "CRITICAL: ACCESS_TOKEN_SECRET is missing from environment variables."
+        );
+        throw new ApiError(500, "Internal server configuration error");
       }
 
-      const decodedToken = jwt.verify(token, secret);
+      // 2. Verify token (Removed invalid await)
+      const decodedToken = jwt.verify(token, secret) as JwtPayload;
 
-      const user: User | null = await userRepository.findOneBy({
-        id: (decodedToken as JwtPayload).id,
+      if (!decodedToken || !decodedToken.id) {
+        throw new ApiError(401, "Invalid Access Token payload");
+      }
+
+      // 3. Fetch minimal user data (Use select to optimize database performance)
+      const user = await userRepository.findOne({
+        where: { id: decodedToken.id },
+        select: {
+          id: true,
+          email: true,
+          role: true,
+        },
       });
 
       if (!user) {
-        throw new ApiError(401, "Invalid Access Token");
+        throw new ApiError(401, "User no longer exists or token is invalid");
       }
-      req.user = { id: user.id, email: user.email, role: user.role };
+
+      // 4. Attach to request object
+      req.user = user;
+
       next();
     } catch (error: unknown) {
+      console.error("JWT Verification Error:", error);
+
+      // Handle specific JWT expiration errors gracefully
+      if (error instanceof jwt.TokenExpiredError) {
+        throw new ApiError(401, "Access token has expired");
+      }
+
+      if (error instanceof jwt.JsonWebTokenError) {
+        throw new ApiError(401, "Invalid access token structure");
+      }
+
+      // Fallback for existing ApiErrors or unexpected issues
+      if (error instanceof ApiError) throw error;
+
       const errorMessage =
-        error instanceof Error ? error.message : "Invalid access token";
-      throw new ApiError(401, errorMessage || "Invalid access token");
+        error instanceof Error ? error.message : "Authentication failed";
+      throw new ApiError(401, errorMessage);
     }
   }
 );

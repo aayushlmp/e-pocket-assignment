@@ -1,206 +1,151 @@
 import { Repository } from "typeorm";
 import { Transaction } from "../entities/Transaction.entity.ts";
-import {
-  ITransaction,
-  QueryParamOption,
-} from "@e-pocket-assignment/shared/interfaces";
+import { TransactionStatus } from "@e-pocket-assignment/shared/enums";
 import { ApiError } from "../utils/api-error.ts";
 
-export class TransactionService {
-  constructor(private transactionRepository: Repository<Transaction>) {}
-  async findAll(query: QueryParamOption) {
+export type GraphPeriod = "7d" | "30d" | "90d";
+
+const PERIOD_DAYS: Record<GraphPeriod, number> = {
+  "7d": 7,
+  "30d": 30,
+  "90d": 90,
+};
+
+export class GraphService {
+  constructor(
+    private readonly transactionRepository: Repository<Transaction>
+  ) {}
+
+  /**
+   * 1. Transaction status distribution
+   * Returns the number of transactions grouped by status.
+   */
+  async getStatusSummary() {
     try {
-      const page = Number(query.page) || 1;
-      const limit = Number(query.limit) || 10;
-      const skip = (page - 1) * limit;
+      const summary = await this.transactionRepository
+        .createQueryBuilder("transaction")
+        .select("transaction.status", "status")
+        .addSelect("COUNT(transaction.id)", "count")
+        .groupBy("transaction.status")
+        .getRawMany();
 
-      const sortBy = query.sortBy || "createdAt";
-      const order = query.order === "ASC" ? "ASC" : "DESC";
-
-      const queryBuilder =
-        this.transactionRepository.createQueryBuilder("transaction");
-
-      if (query.status) {
-        queryBuilder.andWhere("transaction.status = :status", {
-          status: query.status,
-        });
-      }
-
-      if (query.search) {
-        queryBuilder.andWhere(
-          "(transaction.customerName LIKE :search OR transaction.sourceCurrencyCode LIKE :search OR transaction.targetCurrencyCode LIKE :search)",
-          { search: `%${query.search}%` }
-        );
-      }
-
-      queryBuilder
-        .orderBy(`transaction.${sortBy}`, order)
-        .skip(skip)
-        .take(limit);
-
-      const [transactions, total] = await queryBuilder.getManyAndCount();
-
-      return {
-        transactions,
-        pagination: {
-          total,
-          itemCount: transactions.length,
-          limit,
-          totalPages: Math.ceil(total / limit),
-          currentPage: page,
-          query,
-        },
-      };
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw new ApiError(
-          error.statusCode || 500,
-          error.message ?? "Failed to delete transaction details"
-        );
-      }
-    }
-  }
-  async getTransactionById(id: string) {
-    try {
-      const transaction = await this.transactionRepository.findOne({
-        where: { id },
-        relations: {
-          notes: true,
-        },
-        order: {
-          notes: {
-            createdAt: "DESC",
-          },
-        },
-      });
-
-      if (!transaction) {
-        throw new ApiError(404, `Transaction with ID ${id} not found`);
-      }
-
-      return transaction;
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw new ApiError(
-          error.statusCode || 500,
-          error.message ?? "Failed to delete transaction details"
-        );
-      }
-    }
-  }
-  async getTransactionsByUserId(id: string) {
-    try {
-      const transaction = await this.transactionRepository.find({
-        where: { customerId: id },
-        // select: {
-        //   notes: {
-        //     id: true,
-        //     comment: true,
-        //   },
-        // },
-        relations: {
-          notes: true,
-        },
-        order: {
-          notes: {
-            createdAt: "DESC",
-          },
-        },
-      });
-
-      if (!transaction) {
-        throw new ApiError(404, `Transactions for USER ${id} not found`);
-      }
-      return transaction;
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw new ApiError(
-          error.statusCode || 500,
-          error.message ?? "Failed to fetch transactions"
-        );
-      }
-    }
-  }
-  async getTransactionStatusById(id: string) {
-    try {
-      const transaction = await this.transactionRepository.findOne({
-        where: { id },
-        select: {
-          id: true,
-          status: true,
-        },
-      });
-
-      if (!transaction) {
-        throw new ApiError(404, `Transaction with ID ${id} not found`);
-      }
-
-      return { id: transaction.id, status: transaction.status };
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw new ApiError(
-          error.statusCode || 500,
-          error.message ?? "Failed to fetch transaction status"
-        );
-      }
-    }
-  }
-  async save(transaction: ITransaction) {
-    try {
-      return await this.transactionRepository.save(transaction);
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw new ApiError(
-          error.statusCode || 500,
-          error.message ?? "Failed to add transaction details"
-        );
-      }
-    }
-  }
-  async update(id: string, transaction: Partial<ITransaction>) {
-    try {
-      const existingTransaction = await this.transactionRepository.findOne({
-        where: { id },
-      });
-
-      if (!existingTransaction) {
-        throw new ApiError(404, `Transaction with ID ${id} not found`);
-      }
-
-      const updatedTransaction = this.transactionRepository.merge(
-        existingTransaction,
-        transaction
+      // Include every status, even when its count is zero.
+      const counts = new Map(
+        summary.map((item) => [item.status, Number(item.count)])
       );
-      return await this.transactionRepository.save(updatedTransaction);
+
+      return Object.values(TransactionStatus).map((status) => ({
+        status,
+        count: counts.get(status) ?? 0,
+      }));
     } catch (error) {
-      if (error instanceof ApiError) {
-        throw new ApiError(
-          error.statusCode || 500,
-          error.message ?? "Failed to delete transaction details"
-        );
-      }
+      this.handleError(error, "Failed to fetch transaction status summary");
     }
   }
-  async delete(id: string) {
-    try {
-      const transaction = await this.transactionRepository.findOne({
-        where: { id },
-        relations: {
-          notes: true,
-        },
-      });
 
-      if (!transaction) {
-        throw new ApiError(404, `Transaction with ID ${id} not found`);
-      }
-      return await this.transactionRepository.remove(transaction);
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw new ApiError(
-          error.statusCode || 500,
-          error.message ?? "Failed to delete transaction details"
+  /**
+   * 2. Transaction volume over time
+   * Supported periods: 7d, 30d, 90d.
+   */
+  async getTransactionVolume(period: GraphPeriod = "7d") {
+    try {
+      const days = this.getPeriodDays(period);
+
+      return await this.transactionRepository
+        .createQueryBuilder("transaction")
+        .select("DATE(transaction.createdAt)", "date")
+        .addSelect("COUNT(transaction.id)", "count")
+        .where(
+          `transaction.createdAt >= DATE_SUB(CURDATE(), INTERVAL ${days} DAY)`
+        )
+        .groupBy("DATE(transaction.createdAt)")
+        .orderBy("DATE(transaction.createdAt)", "ASC")
+        .getRawMany()
+        .then((rows) =>
+          rows.map((row) => ({
+            date: row.date,
+            count: Number(row.count),
+          }))
         );
-      }
+    } catch (error) {
+      this.handleError(error, "Failed to fetch transaction volume");
+    }
+  }
+
+  /**
+   * 3. Currency breakdown
+   * Groups transactions by source currency.
+   */
+  async getCurrencyBreakdown() {
+    try {
+      const summary = await this.transactionRepository
+        .createQueryBuilder("transaction")
+        .select("transaction.sourceCurrencyCode", "currency")
+        .addSelect("COUNT(transaction.id)", "transactionCount")
+        .addSelect("SUM(transaction.amount)", "totalAmount")
+        .addSelect("SUM(transaction.fees)", "totalFees")
+        .groupBy("transaction.sourceCurrencyCode")
+        .orderBy("COUNT(transaction.id)", "DESC")
+        .getRawMany();
+
+      return summary.map((row) => ({
+        currency: row.currency,
+        transactionCount: Number(row.transactionCount),
+        totalAmount: Number(row.totalAmount ?? 0),
+        totalFees: Number(row.totalFees ?? 0),
+      }));
+    } catch (error) {
+      this.handleError(error, "Failed to fetch currency breakdown");
+    }
+  }
+
+  /**
+   * 4. Fee trends over time
+   * Returns daily fee totals for the selected period.
+   */
+  async getFeeTrends(period: GraphPeriod = "30d") {
+    try {
+      const days = this.getPeriodDays(period);
+
+      const summary = await this.transactionRepository
+        .createQueryBuilder("transaction")
+        .select("DATE(transaction.createdAt)", "date")
+        .addSelect("SUM(transaction.fees)", "totalFees")
+        .where(
+          `transaction.createdAt >= DATE_SUB(CURDATE(), INTERVAL ${days} DAY)`
+        )
+        .groupBy("DATE(transaction.createdAt)")
+        .orderBy("DATE(transaction.createdAt)", "ASC")
+        .getRawMany();
+
+      return summary.map((row) => ({
+        date: row.date,
+        totalFees: Number(row.totalFees ?? 0),
+      }));
+    } catch (error) {
+      this.handleError(error, "Failed to fetch fee trends");
+    }
+  }
+
+  /**
+   * Validates the period before using it in a SQL expression.
+   */
+  private getPeriodDays(period: GraphPeriod): number {
+    const days = PERIOD_DAYS[period];
+
+    if (!days) {
+      throw new ApiError(400, "Invalid period. Use 7d, 30d, or 90d.");
+    }
+
+    return days;
+  }
+
+  /**
+   * Consistent error handling across all chart methods.
+   */
+  private handleError(error: unknown, message: string) {
+    if (error instanceof ApiError) {
+      throw new ApiError(error.statusCode || 500, error.message ?? message);
     }
   }
 }

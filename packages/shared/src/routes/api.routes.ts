@@ -1,9 +1,14 @@
-
-export const API_VERSION = 'v1';
-export const API_PREFIX = `/api/${API_VERSION ?? 'v1'}`;
+export const API_VERSION = "v1";
+export const API_PREFIX = `/api/${API_VERSION ?? "v1"}`;
+export const API_ROUTES_USERS = `${API_PREFIX}/users`;
+export const API_ROUTES_AUTH = `${API_PREFIX}/auth`;
+export const API_ROUTES_TRANSACTIONS = `${API_PREFIX}/transactions`;
+export const API_ROUTES_HEALTH_CHECK = `${API_PREFIX}/healthcheck`;
+export const API_ROUTES_TRANSACTIONS_GRAPHS = `${API_ROUTES_TRANSACTIONS}/charts`;
 export const API_ROUTES = {
-  USERS: `${API_PREFIX}/users`,
-  AUTH: `${API_PREFIX}/auth`,
-  TRANSACTIONS: `${API_PREFIX}/transactions`,
-  HEALTH_CHECK: `${API_PREFIX}/healthcheck`,
-}
+  USERS: `${API_ROUTES_USERS}`,
+  AUTH: `${API_ROUTES_AUTH}`,
+  TRANSACTIONS: `${API_ROUTES_TRANSACTIONS}`,
+  HEALTH_CHECK: `${API_ROUTES_HEALTH_CHECK}`,
+  TRANSACTIONS_GRAPHS: `${API_ROUTES_TRANSACTIONS_GRAPHS}`,
+};

@@ -16,7 +16,7 @@ export interface CardWrapperProps {
   className?: string;
 }
 export interface AppConfig {
-  API_URL: string;
+  API_BASE_URL: string;
   APP_VERSION: string;
   APP_ENV: environment;
   ENABLE_ANALYTICS?: boolean;

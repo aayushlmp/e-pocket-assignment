@@ -10,7 +10,6 @@ const loadAppConfig = async () => {
     throw new Error(`Failed to load config.json: ${response.status}`);
   }
   config = await response.json();
-  return config;
 };
 
 const getAppConfig = (): AppConfig => {

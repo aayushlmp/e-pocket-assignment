@@ -37,7 +37,7 @@ const bootstrapApplication = async () => {
 // Bootstrap application and load config
 ;(async () => {
   try {
-    await loadAppConfig();
+    //await loadAppConfig();
     bootstrapApplication()
     .catch((error) => console.error("Application bootstrap failed:", error));
   } catch (error) {

@@ -11,18 +11,21 @@ import {
 import { validateReqPayload } from "../middlewares/validate-payload.middleware.ts";
 import { Transaction } from "../entities/Transaction.entity.ts";
 
-const router = Router();
+const transactionRouter = Router();
 
-router.route("/").get(list).post(validateReqPayload(Transaction), create);
+transactionRouter
+  .route("/")
+  .get(list)
+  .post(validateReqPayload(Transaction), create);
 
-router
+transactionRouter
   .route("/:id")
   .get(getTransactionById)
   .patch(validateReqPayload(Transaction), update)
   .delete(deleteById);
 
-router.route("/user/:id").get(getTransactionsByUserId);
+transactionRouter.route("/user/:id").get(getTransactionsByUserId);
 
-router.route("/:id/:notes").post(addNote);
+transactionRouter.route("/:id/:notes").post(addNote);
 
-export default router;
+export default transactionRouter;

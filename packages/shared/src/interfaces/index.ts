@@ -15,6 +15,17 @@ export interface User {
   createdAt: Date;
   updatedAt: Date;
 }
+export interface CreateUserDto {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  status: Status;
+}
+
+export interface UpdateUserDto extends Partial<CreateUserDto> {}
+
 export interface INote {
   id: string;
   comment: string;

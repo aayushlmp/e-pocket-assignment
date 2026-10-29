@@ -4,14 +4,22 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  Unique,
 } from "typeorm";
-import { IsEmail, IsNotEmpty, MinLength, IsUUID } from "class-validator";
+import {
+  IsEmail,
+  IsOptional,
+  IsNotEmpty,
+  MinLength,
+  IsUUID,
+} from "class-validator";
 import { UserRole, Status } from "@e-pocket-assignment/shared/enums";
 
 @Entity(`users`)
 export class User {
   @PrimaryGeneratedColumn("uuid")
   @IsUUID()
+  @IsOptional()
   id!: string;
 
   @Column({ type: "varchar", name: "first_name" })
@@ -36,7 +44,8 @@ export class User {
   @MinLength(8, { message: "Password must be at least 8 characters long." })
   password!: string;
 
-  @Column({ type: "varchar", name: "refresh_token" })
+  @Column({ type: "varchar", name: "refresh_token", default: null })
+  @IsOptional()
   refreshToken!: string;
 
   @Column({
@@ -56,8 +65,10 @@ export class User {
   role!: UserRole;
 
   @CreateDateColumn({ type: "timestamp", name: "created_at" })
+  @IsOptional()
   createdAt!: Date;
 
   @UpdateDateColumn({ type: "timestamp", name: "updated_at" })
+  @IsOptional()
   updatedAt!: Date;
 }

@@ -178,6 +178,76 @@ const addNote = asyncHandler(
       .json(new ApiResponse(201, transaction, "Note added successfully"));
   }
 );
+const totalTransactions = asyncHandler(
+  async (_: AuthenticatedRequest, res: Response) => {
+    const total = await transactionRepository.count();
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { total },
+          "Total transactions fetched successfully"
+        )
+      );
+  }
+);
+
+const totalTransferAmount = asyncHandler(
+  async (_: AuthenticatedRequest, res: Response) => {
+    const result = await transactionRepository
+      .createQueryBuilder("transaction")
+      .select("COALESCE(SUM(transaction.amount), 0)", "totalAmount")
+      .getRawOne<{ totalAmount: string }>();
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { totalAmount: Number(result?.totalAmount ?? 0) },
+          "Total transfer amount fetched successfully"
+        )
+      );
+  }
+);
+
+const pendingTransactions = asyncHandler(
+  async (_: AuthenticatedRequest, res: Response) => {
+    const total = await transactionRepository.count({
+      where: { status: TransactionStatus.PENDING },
+    });
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { total },
+          "Pending transactions count fetched successfully"
+        )
+      );
+  }
+);
+
+const completedTransactions = asyncHandler(
+  async (_: AuthenticatedRequest, res: Response) => {
+    const total = await transactionRepository.count({
+      where: { status: TransactionStatus.APPROVED },
+    });
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { total },
+          "Completed transactions count fetched successfully"
+        )
+      );
+  }
+);
 export {
   list,
   create,
@@ -186,4 +256,8 @@ export {
   addNote,
   getTransactionById,
   getTransactionsByUserId,
+  totalTransactions,
+  totalTransferAmount,
+  pendingTransactions,
+  completedTransactions,
 };

@@ -6,6 +6,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import type { LucideIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const MainNavigation = ({
   items,
@@ -22,11 +23,13 @@ export const MainNavigation = ({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
-                {item.icon && <item.icon />}
-                <span className="font-medium text-[14px]">{item.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+              <Link to={item.url}>
+                <SidebarMenuButton tooltip={item.title}>
+                  {item.icon && <item.icon />}
+                  <span className="font-medium text-[14px]">{item.title}</span>
+                </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
           ))}
         </SidebarMenu>
       </SidebarGroupContent>

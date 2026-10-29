@@ -50,6 +50,14 @@ export const router = createBrowserRouter([
             path: "dashboard",
             element: <Dashboard />,
           },
+          {
+            path: "transactions",
+            element: <h1>Transactions</h1>,
+          },
+          {
+            path: "users",
+            element: <h1>Users</h1>,
+          },
           // Add other protected pages here.
           // { path: "transactions", element: <Transactions /> },
         ],

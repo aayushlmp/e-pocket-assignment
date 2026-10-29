@@ -48,6 +48,10 @@ export class User {
   @IsOptional()
   refreshToken!: string;
 
+  @Column({ type: "text", name: "avatar", default: null })
+  @IsOptional()
+  avatar!: string;
+
   @Column({
     type: "enum",
     enum: Status,

@@ -21,17 +21,17 @@ const navigations = {
   items: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: LayoutDashboard,
     },
     {
       title: "Transactions",
-      url: "#",
+      url: "/transactions",
       icon: BanknoteArrowUp,
     },
     {
       title: "Users",
-      url: "#",
+      url: "/users",
       icon: UserGroup,
     },
   ],

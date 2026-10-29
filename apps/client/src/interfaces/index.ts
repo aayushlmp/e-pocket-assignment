@@ -32,3 +32,10 @@ export interface AuthContextType {
   signInSuccessHandler: (user: LoginResponseDto) => void;
   signOutSuccessHandler: () => void;
 }
+
+export interface DashboardTransactionMetric {
+  total: number;
+  totalAmount: number;
+  pending: number;
+  completed: number;
+}

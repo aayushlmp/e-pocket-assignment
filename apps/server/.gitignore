@@ -118,5 +118,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-
+# Seeds and Migrations
+# ==============================================================================
+seeds
+*.seeds
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Node

@@ -15,20 +15,38 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { signIn } from "@/services/auth.service";
+import { toast } from "sonner";
+import type { LoginResponseDto } from "@e-pocket-assignment/shared/interfaces";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
-  const handleLogin = (event: React.SubmitEvent) => {
-    event.preventDefault();
-    console.log(`handle login`)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const {signInSuccessHandler} = useAuth()
+
+  const handleSuccessHandler = (loginResponseDto: LoginResponseDto) => {
+    signInSuccessHandler(loginResponseDto)
   }
+  const handleLogin = async (event: React.SubmitEvent) => {
+    event.preventDefault();
+    try {
+      const response = await signIn({email, password});
+      if(response) {
+        toast.success(response.data.message || "Login successfully");
+        handleSuccessHandler(response.data.data)
+      }
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
   return (
     <div className={cn("flex flex-col gap-6")}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>
-            Login with your Email
-          </CardDescription>
+          <CardDescription>Login with your Email</CardDescription>
         </CardHeader>
         <CardContent>
           <form noValidate onSubmit={handleLogin}>
@@ -39,11 +57,13 @@ const Login = () => {
                   id="email"
                   type="email"
                   placeholder="m@example.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   required
                 />
-                <FieldDescription data-invalid>
+                {/* <FieldDescription data-invalid>
                   This is required field.
-                </FieldDescription>
+                </FieldDescription> */}
               </Field>
               <Field>
                 <div className="flex items-center">
@@ -55,7 +75,14 @@ const Login = () => {
                     Forgot your password?
                   </a> */}
                 </div>
-                <Input id="password" type="password" placeholder="**********" required />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="**********"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
               </Field>
               <Field>
                 <Button type="submit">Login</Button>

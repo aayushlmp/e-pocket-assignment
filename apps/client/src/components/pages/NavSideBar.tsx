@@ -18,11 +18,6 @@ import { NavUser } from "@/components/pages/NavUser";
 import { Logo } from "@/components/pages/Logo";
 
 const navigations = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   items: [
     {
       title: "Dashboard",
@@ -63,7 +58,7 @@ export const NavSideBar = ({ ...props }) => {
         <MainNavigation items={navigations.items} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={navigations.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );

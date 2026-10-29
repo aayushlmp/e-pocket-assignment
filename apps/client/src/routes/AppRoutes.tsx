@@ -2,10 +2,14 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import Login from "@/components/pages/Login";
 import SignUp from "@/components/pages/SignUp";
-import AuthLayout from "@/layouts/AuthLayout";
-import { PageNotFound } from "@/components/pages/PageNotFound";
-import Layout from "@/layouts/Layout";
 import { Dashboard } from "@/components/pages/Dashboard";
+import { PageNotFound } from "@/components/pages/PageNotFound";
+
+import AuthLayout from "@/layouts/AuthLayout";
+import Layout from "@/layouts/Layout";
+
+import ProtectedRoute from "@/routes/ProtectedRoute";
+import PublicRoute from "@/routes/PublicRoute";
 
 export const router = createBrowserRouter([
   {
@@ -13,21 +17,43 @@ export const router = createBrowserRouter([
     element: <Navigate to="/auth/login" replace />,
   },
   {
-    path: "auth",
-    element: <AuthLayout />,
+    element: <PublicRoute />,
     children: [
-      { index: true, element: <Navigate to="login" replace /> },
-      { path: "login", element: <Login /> },
-      { path: "signup", element: <SignUp /> },
+      {
+        path: "auth",
+        element: <AuthLayout />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="login" replace />,
+          },
+          {
+            path: "login",
+            element: <Login />,
+          },
+          {
+            path: "signup",
+            element: <SignUp />,
+          },
+        ],
+      },
     ],
   },
   {
-    path: "/",
-    element: <Layout />,
+    element: <ProtectedRoute />,
     children: [
-      { index: true, element: <Navigate to="dashboard" replace /> },
-      { path: "dashboard", element: <Dashboard /> },
-    //   { path: "transactions", element: <h>transactions</h1> },
+      {
+        path: "/",
+        element: <Layout />,
+        children: [
+          {
+            path: "dashboard",
+            element: <Dashboard />,
+          },
+          // Add other protected pages here.
+          // { path: "transactions", element: <Transactions /> },
+        ],
+      },
     ],
   },
   {

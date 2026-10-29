@@ -19,17 +19,17 @@ const signIn = asyncHandler(
     const loggedInUser = await authService.signIn(email, password);
     const { accessToken, refreshToken } = loggedInUser;
     const cookieOptions = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict' as const,
-        maxAge: 7 * 24 * 60 * 60 * 1000 // Example: 7 days expiration line
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict" as const,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // Example: 7 days expiration line
     };
 
     return res
       .status(200)
       .cookie("accessToken", accessToken, cookieOptions)
       .cookie("refreshToken", refreshToken, cookieOptions)
-      .json(new ApiResponse(200, loggedInUser, "Login successful."));
+      .json(new ApiResponse(200, loggedInUser, "Login successfully"));
   }
 );
 const signOut = asyncHandler(
@@ -40,14 +40,13 @@ const signOut = asyncHandler(
       if (id) {
         await authService.signOut(id as string);
         return res
-            .status(200)
-            .json(
-              new ApiResponse(200, undefined, "Logout Successfully")
-            );
+          .status(200)
+          .json(new ApiResponse(200, undefined, "Logout Successfully"));
       }
-    } catch(error) {
-      const errorMessage = error instanceof Error ? error.message : "Invalid access token";
-      throw new ApiError(401, (errorMessage || "Invalid access token"));
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Invalid access token";
+      throw new ApiError(401, errorMessage || "Invalid access token");
     }
   }
 );

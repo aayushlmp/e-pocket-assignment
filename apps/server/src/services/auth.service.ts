@@ -49,7 +49,16 @@ export class AuthService {
   async signIn(email: string, plainPassword: string) {
     const user = await this.userRepository
       .createQueryBuilder("user")
-      .addSelect("user.password")
+      .select([
+        "user.id",
+        "user.firstName",
+        "user.lastName",
+        "user.userName",
+        "user.email",
+        "user.role",
+        "user.status",
+        "user.password",
+      ])
       .where("user.email = :email", { email })
       .getOne();
 
@@ -78,7 +87,7 @@ export class AuthService {
     await this.userRepository.save(user);
     const { password, refreshToken, ...finalUser } = user;
     return {
-      user: finalUser,
+      ...finalUser,
       ...tokens,
     };
   }

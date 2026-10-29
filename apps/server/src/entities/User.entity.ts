@@ -44,7 +44,7 @@ export class User {
   @MinLength(8, { message: "Password must be at least 8 characters long." })
   password!: string;
 
-  @Column({ type: "varchar", name: "refresh_token", default: null })
+  @Column({ type: "text", name: "refresh_token", default: null })
   @IsOptional()
   refreshToken!: string;
 

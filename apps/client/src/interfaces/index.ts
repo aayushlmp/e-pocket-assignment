@@ -1,3 +1,8 @@
+import type {
+  IUser,
+  LoginResponseDto,
+} from "@e-pocket-assignment/shared/interfaces";
+
 export type environment = "dev" | "staging" | "prod";
 export interface CardWrapperProps {
   /** The main dynamic component, form, chart, or layout inside the card */
@@ -20,4 +25,10 @@ export interface AppConfig {
   APP_VERSION: string;
   APP_ENV: environment;
   ENABLE_ANALYTICS?: boolean;
+}
+export interface AuthContextType {
+  user: IUser | null;
+  isAuthenticated: boolean;
+  signInSuccessHandler: (user: LoginResponseDto) => void;
+  signOutSuccessHandler: () => void;
 }

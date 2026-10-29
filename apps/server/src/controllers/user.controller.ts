@@ -10,11 +10,10 @@ const userService = new UserService(userRepository);
 
 const createUser = asyncHandler(async (req: Request, res: Response) => {
   const user = await userService.save(req.body);
-  const { password, refreshToken, ...savedUser } = user;
   if (user) {
     return res
       .status(201)
-      .json(new ApiResponse(201, savedUser, "User added successfully"));
+      .json(new ApiResponse(201, user, "User added successfully"));
   }
 });
 export { createUser };

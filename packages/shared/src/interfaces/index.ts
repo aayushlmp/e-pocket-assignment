@@ -4,7 +4,7 @@ import {
   TransactionStatus,
 } from "@e-pocket-assignment/shared/enums";
 
-export interface User {
+export interface IUser {
   id: string;
   firstName: string;
   lastName: string;
@@ -12,16 +12,25 @@ export interface User {
   email: string;
   status: Status;
   role: UserRole;
+  password?: string;
+  avatar?: string | null;
   createdAt: Date;
   updatedAt: Date;
+}
+export interface LoginDto {
+  email: string;
+  password: string;
+}
+export interface LoginResponseDto extends IUser {
+  accessToken: string;
+  refreshToken: string;
 }
 export interface CreateUserDto {
   firstName: string;
   lastName: string;
+  userName: string;
   email: string;
   password: string;
-  role: UserRole;
-  status: Status;
 }
 
 export interface UpdateUserDto extends Partial<CreateUserDto> {}

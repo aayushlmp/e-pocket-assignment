@@ -3,6 +3,7 @@ import type {
   IUser,
   LoginResponseDto,
 } from "@e-pocket-assignment/shared/interfaces";
+import type { ReactNode } from "react";
 
 export type environment = "dev" | "staging" | "prod";
 export interface CardWrapperProps {
@@ -67,4 +68,48 @@ export interface PieChartWrapperProps<T> extends ChartWrapperProps<T> {
 export interface BarChartWrapperProps<T> extends ChartWrapperProps<T> {
   xAxisKey: string;
   yAxisKeys: string[];
+}
+
+export interface DataTableColumn<T> {
+  key: keyof T;
+  label: string;
+  sortable?: boolean;
+  searchable?: boolean;
+  className?: string;
+
+  // Custom cell rendering
+  render?: (value: T[keyof T], row: T) => ReactNode;
+
+  // Optional custom sorting value
+  sortValue?: (row: T) => string | number;
+}
+
+export interface DataTableFilter<T> {
+  key: keyof T;
+  label: string;
+  options: {
+    label: string;
+    value: string;
+  }[];
+}
+
+export interface DataTableProps<T extends Record<string, any>> {
+  data: T[];
+  columns: DataTableColumn<T>[];
+
+  title?: string;
+  description?: string;
+  searchPlaceholder?: string;
+
+  searchable?: boolean;
+  filter?: DataTableFilter<T>;
+
+  pageSize?: number;
+  pageSizeOptions?: number[];
+
+  rowKey: keyof T;
+
+  actions?: (row: T) => ReactNode;
+
+  emptyMessage?: string;
 }

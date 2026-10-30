@@ -16,4 +16,12 @@ const createUser = asyncHandler(async (req: Request, res: Response) => {
       .json(new ApiResponse(201, user, "User added successfully"));
   }
 });
-export { createUser };
+const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
+  const users = await userService.getAllUsers();
+  if (users) {
+    return res
+      .status(201)
+      .json(new ApiResponse(201, users, "Users fetched successfully"));
+  }
+});
+export { createUser, getAllUsers };

@@ -11,7 +11,6 @@ import {
 import {
   LayoutDashboard,
   BanknoteArrowUp,
-  UserGroup,
 } from "lucide-react";
 import { MainNavigation } from "@/components/pages/MainNavigation";
 import { NavUser } from "@/components/pages/NavUser";
@@ -29,11 +28,11 @@ const navigations = {
       url: "/transactions",
       icon: BanknoteArrowUp,
     },
-    {
-      title: "Users",
-      url: "/users",
-      icon: UserGroup,
-    },
+    // {
+    //   title: "Users",
+    //   url: "/users",
+    //   icon: UserGroup,
+    // },
   ],
 };
 

@@ -28,4 +28,23 @@ export class UserService {
       }
     }
   }
+  async getAllUsers() {
+    try {
+      return await this.userRepository.find({
+        select: {
+          password: false,
+        },
+        order: {
+          createdAt: "DESC",
+        },
+      });
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw new ApiError(
+          error.statusCode || 500,
+          error.message ?? "Failed to load users list"
+        );
+      }
+    }
+  }
 }

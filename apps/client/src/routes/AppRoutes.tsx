@@ -10,6 +10,7 @@ import Layout from "@/layouts/Layout";
 
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import PublicRoute from "@/routes/PublicRoute";
+import TransactionListCard from "@/components/pages/TransactionListCard";
 
 export const router = createBrowserRouter([
   {
@@ -52,11 +53,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "transactions",
-            element: <h1>Transactions</h1>,
-          },
-          {
-            path: "users",
-            element: <h1>Users</h1>,
+            element: <TransactionListCard />
           },
           // Add other protected pages here.
           // { path: "transactions", element: <Transactions /> },

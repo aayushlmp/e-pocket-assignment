@@ -47,7 +47,7 @@ export class GraphService {
    * 2. Transaction volume over time
    * Supported periods: 7d, 30d, 90d.
    */
-  async getTransactionVolume(period: GraphPeriod = "7d") {
+  async getTransactionVolume(period: GraphPeriod = "90d") {
     try {
       const days = this.getPeriodDays(period);
 

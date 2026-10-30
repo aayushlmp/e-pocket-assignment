@@ -150,7 +150,7 @@ export const DataTable = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div>
       {/* Table container */}
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
 

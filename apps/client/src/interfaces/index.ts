@@ -1,3 +1,4 @@
+import type { ChartConfig } from "@/components/ui/chart";
 import type {
   IUser,
   LoginResponseDto,
@@ -38,4 +39,32 @@ export interface DashboardTransactionMetric {
   totalAmount: number;
   pending: number;
   completed: number;
+}
+export interface CurrencyChart {
+  currency: string;
+  transactionCount: number;
+  totalAmount: number;
+  totalFees: number;
+}
+export interface StatusDistributionChart {
+  status: string;
+  count: number;
+}
+export interface TransactionValumeChart {
+  date: string;
+  count: number;
+}
+export interface ChartWrapperProps<T> {
+  chartData: T[];
+  chartConfig: ChartConfig;
+}
+export interface PieChartWrapperProps<T> extends ChartWrapperProps<T> {
+  dataKey: Extract<keyof T, string>;
+  labelKey: Extract<keyof T, string>;
+}
+
+// 📈 Dedicated Line interface layout definitions
+export interface BarChartWrapperProps<T> extends ChartWrapperProps<T> {
+  xAxisKey: string;
+  yAxisKeys: string[];
 }

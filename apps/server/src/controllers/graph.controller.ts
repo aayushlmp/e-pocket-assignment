@@ -40,7 +40,7 @@ export const transactionVolume = asyncHandler(
   async (req: AuthenticatedRequest, res: Response) => {
     const period = getPeriod(req.query.period);
     const data = await graphService.getTransactionVolume(period);
-
+    console.log(data);
     res
       .status(200)
       .json(

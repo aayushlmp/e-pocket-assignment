@@ -4,9 +4,9 @@ import {
   completedTransactions,
   create,
   deleteById,
+  findAll,
   getTransactionById,
   getTransactionsByUserId,
-  list,
   pendingTransactions,
   totalTransactions,
   totalTransferAmount,
@@ -19,7 +19,7 @@ const transactionRouter = Router();
 
 transactionRouter
   .route("/")
-  .get(list)
+  .get(findAll)
   .post(validateReqPayload(Transaction), create);
 
 transactionRouter

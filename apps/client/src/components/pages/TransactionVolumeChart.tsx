@@ -22,7 +22,6 @@ export const TransactionVolumeChart = () => {
     const loadChart = async () => {
       try {
         const response = await fetchTransactionVolume('90d');
-        console.log(response)
         const data = response.data.data?.map(
           (item: TransactionValumeChart) => {
             const normalizedStatus = (item.date || "").toLowerCase();

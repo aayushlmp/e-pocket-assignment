@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { ChartConfig } from "@/components/ui/chart";
 import { fetchCurrencyBreakdown } from "@/services/chart.service";
 import type { CurrencyChart } from "@/interfaces";
+import { toast } from "sonner";
 
 export const TransactionByCurrencyChart = () => {
   const card = {
@@ -42,7 +43,7 @@ export const TransactionByCurrencyChart = () => {
         const data = response.data.data;
         setChartData(data);
       } catch (error) {
-        console.error("Failed to load transaction volume", error);
+        toast.error("Failed to load transaction volume");
       }
     };
 

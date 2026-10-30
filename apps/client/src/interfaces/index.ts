@@ -93,8 +93,61 @@ export interface DataTableFilter<T> {
   }[];
 }
 
-export interface DataTableProps<T extends Record<string, any>> {
+export type DataTableSortDirection = "asc" | "desc";
+
+/** Query params the DataTable sends to the API in server-driven mode */
+export interface DataTableQueryParams {
+  page: number;
+  limit: number;
+  search: string;
+  sortBy: string | null;
+  order: DataTableSortDirection;
+  filterValue: string | null;
+}
+
+/** Normalized result a server-driven DataTable expects back */
+export interface DataTableFetchResult<T> {
   data: T[];
+  total: number;
+}
+
+export type DataTableFetchFn<T> = (
+  params: DataTableQueryParams
+) => Promise<DataTableFetchResult<T>>;
+
+/**
+ * Updates a matching row in place (server-driven mode) without refetching.
+ * Example: after a status change, patch the row locally.
+ */
+export type DataTableRowUpdater<T> = (
+  match: (row: T) => boolean,
+  patch: Partial<T>
+) => void;
+
+/** Query params accepted by the paginated list endpoints (PaginationService) */
+export interface ApiListQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+  order?: "ASC" | "DESC";
+  [key: string]: string | number | undefined;
+}
+
+export interface DataTableProps<T extends Record<string, any>> {
+  /** Local mode: rows to paginate/sort/filter in memory */
+  data?: T[];
+  /**
+   * Server-driven mode: when provided, search/filter/sort/pagination are
+   * delegated to the API (PaginationService) via this callback instead of
+   * being applied locally over `data`.
+   */
+  fetchData?: DataTableFetchFn<T>;
+  /**
+   * Receives a function that updates a matching row in place (server-driven
+   * mode) without an extra GET — e.g. after a successful mutation.
+   */
+  registerRowUpdater?: (updater: DataTableRowUpdater<T>) => void;
   columns: DataTableColumn<T>[];
 
   title?: string;

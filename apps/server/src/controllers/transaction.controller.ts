@@ -6,10 +6,8 @@ import { TransactionService } from "../services/transaction.service.ts";
 import { asyncHandler } from "../utils/async-handler.ts";
 import { ApiResponse } from "../utils/api-response.ts";
 import { TransactionStatus } from "@e-pocket-assignment/shared/enums";
-import {
-  QueryParamOption,
-  TransactionStausHistory,
-} from "@e-pocket-assignment/shared/interfaces";
+import { TransactionStausHistory } from "@e-pocket-assignment/shared/interfaces";
+import { PaginationQuery } from "../interfaces/query.interface.ts";
 import { ApiError } from "../utils/api-error.ts";
 import { Note } from "../entities/Note.entity.ts";
 import { NoteService } from "../services/note.service.ts";
@@ -35,7 +33,7 @@ const updateTransactionHistory = (
   if (transactionId) {
     const payload = {
       transactionId,
-      userId,
+      updatedBy: userId,
       status,
       ...(lastStatus && { lastStatus }),
     } as TransactionStausHistory;
@@ -45,28 +43,31 @@ const updateTransactionHistory = (
   }
 };
 
-const list = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { page, limit, search, sortBy, order, status } = req.query;
-  const queryParams = {
-    page: page ? Number(page) : undefined,
-    limit: limit ? Number(limit) : undefined,
-    search: search as string,
-    sortBy: sortBy as string,
-    order: order as "ASC" | "DESC",
-    status: status as TransactionStatus,
-  } as QueryParamOption;
-  const transactions = await transactionService.findAll(queryParams);
+const findAll = asyncHandler(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { page, limit, search, sortBy, order, status } = req.query;
+    const queryParams = {
+      ...req.query,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+      search: search as string,
+      sortBy: sortBy as string,
+      order: order as "ASC" | "DESC",
+      status: status as TransactionStatus,
+    } as PaginationQuery;
+    const transactions = await transactionService.findAll(queryParams);
 
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        { ...transactions },
-        "Transactions fetched successfully"
-      )
-    );
-});
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { ...transactions },
+          "Transactions fetched successfully"
+        )
+      );
+  }
+);
 
 const getTransactionById = asyncHandler(
   async (req: AuthenticatedRequest, res: Response) => {
@@ -141,9 +142,7 @@ const update = asyncHandler(
     updateTransactionHistory(id as string, userId, status, lastStatus);
     return res
       .status(200)
-      .json(
-        new ApiResponse(200, transaction, "Transaction updated successfully")
-      );
+      .json(new ApiResponse(200, null, "Transaction updated successfully"));
   }
 );
 const deleteById = asyncHandler(
@@ -249,7 +248,7 @@ const completedTransactions = asyncHandler(
   }
 );
 export {
-  list,
+  findAll,
   create,
   update,
   deleteById,

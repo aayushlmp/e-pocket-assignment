@@ -1,10 +1,10 @@
 import { DataTable } from "@/components/pages/DataTable";
-import type { DataTableColumn } from "@/interfaces";
+import type { DataTableColumn, DataTableFetchFn } from "@/interfaces";
 import { fetchUsers } from "@/services/user.service";
 import { Status } from "@e-pocket-assignment/shared/enums";
 import type { IUser } from "@e-pocket-assignment/shared/interfaces";
 import { MoreHorizontal } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
 
 const UserTableCard = () => {
   const columns: DataTableColumn<IUser>[] = [
@@ -46,23 +46,30 @@ const UserTableCard = () => {
       sortValue: (user) => new Date(user.createdAt).getTime(),
     },
   ];
-  const [users, setUsers] = useState<IUser[]>([]);
-  useEffect(() => {
-    const loadUsers = async () => {
+  const loadUsers = useCallback<DataTableFetchFn<IUser>>(
+    async ({ page, limit, search, sortBy, order, filterValue }) => {
       try {
-        const response = await fetchUsers();
-        if (response) {
-          setUsers(response.data.data);
-        }
+        const response = await fetchUsers({
+          page,
+          limit,
+          search: search || undefined,
+          sortBy: sortBy ?? undefined,
+          order: order.toUpperCase() as "ASC" | "DESC",
+          status: filterValue ?? undefined,
+        });
+        const { users, pagination } = response.data.data;
+
+        return { data: users, total: pagination.total };
       } catch (error) {
         console.error("Failed to load users", error);
+        return { data: [], total: 0 };
       }
-    };
-    loadUsers();
-  }, []);
+    },
+    []
+  );
   return (
     <DataTable
-      data={users}
+      fetchData={loadUsers}
       columns={columns}
       rowKey="id"
       title="All Members"

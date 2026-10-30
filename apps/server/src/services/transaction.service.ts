@@ -1,53 +1,39 @@
 import { Repository } from "typeorm";
 import { Transaction } from "../entities/Transaction.entity.ts";
-import {
-  ITransaction,
-  QueryParamOption,
-} from "@e-pocket-assignment/shared/interfaces";
+import { ITransaction } from "@e-pocket-assignment/shared/interfaces";
+import { PaginationQuery } from "../interfaces/query.interface.ts";
+import { PaginationService } from "./pagination.service.ts";
 import { ApiError } from "../utils/api-error.ts";
 
 export class TransactionService {
   constructor(private transactionRepository: Repository<Transaction>) {}
-  async findAll(query: QueryParamOption) {
+  async findAll(query: PaginationQuery) {
     try {
-      const page = Number(query.page) || 1;
-      const limit = Number(query.limit) || 10;
-      const skip = (page - 1) * limit;
-
-      const sortBy = query.sortBy || "createdAt";
-      const order = query.order === "ASC" ? "ASC" : "DESC";
-
       const queryBuilder =
         this.transactionRepository.createQueryBuilder("transaction");
 
-      if (query.status) {
-        queryBuilder.andWhere("transaction.status = :status", {
-          status: query.status,
-        });
-      }
-
-      if (query.search) {
-        queryBuilder.andWhere(
-          "(transaction.customerName LIKE :search OR transaction.sourceCurrencyCode LIKE :search OR transaction.targetCurrencyCode LIKE :search)",
-          { search: `%${query.search}%` }
-        );
-      }
-
-      queryBuilder
-        .orderBy(`transaction.${sortBy}`, order)
-        .skip(skip)
-        .take(limit);
-
-      const [transactions, total] = await queryBuilder.getManyAndCount();
+      const result = await PaginationService.paginate(queryBuilder, query, {
+        alias: "transaction",
+        searchableFields: [
+          "customerName",
+          "sourceCurrencyCode",
+          "targetCurrencyCode",
+        ],
+        filterableFields: [
+          "status",
+          "sourceCurrencyCode",
+          "targetCurrencyCode",
+        ],
+        rangeFields: ["amount", "createdAt"],
+        sortableFields: ["createdAt", "amount", "status"],
+        defaultSortBy: "createdAt",
+        defaultOrder: "DESC",
+      });
 
       return {
-        transactions,
+        transactions: result.data,
         pagination: {
-          total,
-          itemCount: transactions.length,
-          limit,
-          totalPages: Math.ceil(total / limit),
-          currentPage: page,
+          ...result.pagination,
           query,
         },
       };
@@ -92,12 +78,6 @@ export class TransactionService {
     try {
       const transaction = await this.transactionRepository.find({
         where: { customerId: id },
-        // select: {
-        //   notes: {
-        //     id: true,
-        //     comment: true,
-        //   },
-        // },
         relations: {
           notes: true,
         },
@@ -167,16 +147,16 @@ export class TransactionService {
         throw new ApiError(404, `Transaction with ID ${id} not found`);
       }
 
-      const updatedTransaction = this.transactionRepository.merge(
+      const payload = this.transactionRepository.merge(
         existingTransaction,
         transaction
       );
-      return await this.transactionRepository.save(updatedTransaction);
+      return await this.transactionRepository.save(payload);
     } catch (error) {
       if (error instanceof ApiError) {
         throw new ApiError(
           error.statusCode || 500,
-          error.message ?? "Failed to delete transaction details"
+          error.message ?? "Failed to update details"
         );
       }
     }

@@ -1,5 +1,5 @@
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   Search,
@@ -13,19 +13,27 @@ import {
   X,
 } from "lucide-react";
 
-import type { DataTableProps } from "@/interfaces";
+import { Skeleton } from "@/components/ui/skeleton";
+import type {
+  DataTableProps,
+  DataTableRowUpdater,
+  DataTableSortDirection,
+} from "@/interfaces";
+import { toast } from "sonner";
 
-type SortDirection = "asc" | "desc";
+type SortDirection = DataTableSortDirection;
 
 export const DataTable = <T extends Record<string, any>>({
-  data,
+  data = [],
+  fetchData,
+  registerRowUpdater,
   columns,
   title = "All records",
   description = "View and manage records.",
   searchPlaceholder = "Search...",
   searchable = true,
   filter,
-  pageSize: initialPageSize = 5,
+  pageSize: initialPageSize = 10,
   pageSizeOptions = [5, 10, 15, 20, 50],
   rowKey,
   actions,
@@ -38,6 +46,91 @@ export const DataTable = <T extends Record<string, any>>({
     useState<SortDirection>("asc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(initialPageSize);
+
+  // Server-driven mode state (used when `fetchData` is provided)
+  const isServerMode = Boolean(fetchData);
+  const [serverRows, setServerRows] = useState<T[]>([]);
+  const [serverTotal, setServerTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // In-place row updates (server-driven mode) without an extra GET
+  const updateRow = useCallback<DataTableRowUpdater<T>>(
+    (match, patch) => {
+      setServerRows((rows) =>
+        rows.map((row) => (match(row) ? { ...row, ...patch } : row))
+      );
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!registerRowUpdater) return;
+
+    registerRowUpdater(updateRow);
+  }, [registerRowUpdater, updateRow]);
+
+  // Debounce search before hitting the API
+  useEffect(() => {
+    if (!isServerMode) return;
+
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [search, isServerMode]);
+
+  // Fetch rows from the API whenever query params change
+  useEffect(() => {
+    if (!fetchData) return;
+
+    let active = true;
+
+    setIsLoading(true);
+
+    fetchData({
+      page,
+      limit: pageSize,
+      search: debouncedSearch,
+      sortBy: sortKey ? String(sortKey) : null,
+      order: sortDirection,
+      filterValue: filterValue === "All" ? null : filterValue,
+    })
+      .then((result) => {
+        if (!active) return;
+
+        setServerRows(result.data);
+        setServerTotal(result.total);
+
+        // Guard: current page no longer exists (e.g. results narrowed)
+        if (result.data.length === 0 && page > 1) {
+          setPage(1);
+        }
+      })
+      .catch((error) => {
+        toast.error("Failed to load records", error);
+        if (!active) return;
+
+        setServerRows([]);
+        setServerTotal(0);
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [
+    fetchData,
+    page,
+    pageSize,
+    debouncedSearch,
+    sortKey,
+    sortDirection,
+    filterValue,
+  ]);
 
   // Search, filter and sorting
   const filteredData = useMemo(() => {
@@ -103,6 +196,14 @@ export const DataTable = <T extends Record<string, any>>({
     (safePage - 1) * pageSize,
     safePage * pageSize
   );
+
+  // Resolve rows/pagination for the active mode (local vs server-driven)
+  const activePage = isServerMode ? page : safePage;
+  const pageCount = isServerMode
+    ? Math.ceil(serverTotal / pageSize)
+    : totalPages;
+  const totalRecords = isServerMode ? serverTotal : filteredData.length;
+  const visibleRows = isServerMode ? serverRows : paginatedData;
 
   // Sorting
   const changeSort = (key: keyof T) => {
@@ -219,15 +320,15 @@ export const DataTable = <T extends Record<string, any>>({
         <p className="text-sm text-slate-500">
           Showing{" "}
           <span className="font-semibold text-slate-800">
-            {filteredData.length === 0
+            {totalRecords === 0
               ? 0
-              : (safePage - 1) * pageSize + 1}
+              : (activePage - 1) * pageSize + 1}
             {"–"}
-            {Math.min(safePage * pageSize, filteredData.length)}
+            {Math.min(activePage * pageSize, totalRecords)}
           </span>
           {" "}of{" "}
           <span className="font-semibold text-slate-800">
-            {filteredData.length}
+            {totalRecords}
           </span>
           {" "}records
         </p>
@@ -278,7 +379,20 @@ export const DataTable = <T extends Record<string, any>>({
           </thead>
 
           <tbody className="divide-y divide-slate-100">
-            {paginatedData.map((row) => (
+            {isLoading &&
+              visibleRows.length === 0 &&
+              Array.from({ length: 5 }).map((_, index) => (
+                <tr key={`loading-row-${index}`}>
+                  <td
+                    colSpan={columns.length + (actions ? 1 : 0)}
+                    className="px-5 py-4"
+                  >
+                    <Skeleton className="h-4 w-full" />
+                  </td>
+                </tr>
+              ))}
+
+            {!isLoading && visibleRows.map((row) => (
               <tr
                 key={String(row[rowKey])}
                 className="transition-colors hover:bg-slate-50/80"
@@ -302,7 +416,7 @@ export const DataTable = <T extends Record<string, any>>({
               </tr>
             ))}
 
-            {paginatedData.length === 0 && (
+            {!isLoading && visibleRows.length === 0 && (
               <tr>
                 <td
                   colSpan={columns.length + (actions ? 1 : 0)}
@@ -359,11 +473,11 @@ export const DataTable = <T extends Record<string, any>>({
           <p className="text-sm text-slate-500">
             Page{" "}
             <span className="font-medium text-slate-800">
-              {filteredData.length === 0 ? 0 : safePage}
+              {totalRecords === 0 ? 0 : activePage}
             </span>
             {" "}of{" "}
             <span className="font-medium text-slate-800">
-              {totalPages}
+              {pageCount}
             </span>
           </p>
 
@@ -373,7 +487,7 @@ export const DataTable = <T extends Record<string, any>>({
               onClick={() =>
                 setPage((current) => Math.max(1, current - 1))
               }
-              disabled={safePage <= 1}
+              disabled={activePage <= 1}
               aria-label="Previous page"
               className="inline-flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
             >
@@ -383,9 +497,9 @@ export const DataTable = <T extends Record<string, any>>({
             <button
               type="button"
               onClick={() =>
-                setPage((current) => Math.min(totalPages, current + 1))
+                setPage((current) => Math.min(pageCount, current + 1))
               }
-              disabled={safePage >= totalPages}
+              disabled={activePage >= pageCount}
               aria-label="Next page"
               className="inline-flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
             >

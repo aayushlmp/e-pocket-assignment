@@ -43,7 +43,7 @@ export const MetricsGrid = () => {
           completed: completedRes.data.data.total,
         });
       } catch (error) {
-        toast.error("Failed to fetch transaction metrics:");
+        toast.error("Failed to fetch transaction metrics");
       }
     };
 

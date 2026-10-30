@@ -3,10 +3,50 @@ import { User } from "../entities/User.entity.ts";
 import { ApiError } from "../utils/api-error.ts";
 import { CreateUserDto, IUser } from "@e-pocket-assignment/shared/interfaces";
 import { Status, UserRole } from "@e-pocket-assignment/shared/enums";
+import { PaginationQuery } from "../interfaces/query.interface.ts";
+import { PaginationService } from "./pagination.service.ts";
 import bcrypt from "bcrypt";
 
 export class UserService {
   constructor(private userRepository: Repository<User>) {}
+  async findAll(query: PaginationQuery) {
+    try {
+      const queryBuilder = this.userRepository.createQueryBuilder("user");
+
+      const result = await PaginationService.paginate(queryBuilder, query, {
+        alias: "user",
+        searchableFields: ["firstName", "lastName", "userName", "email"],
+        filterableFields: ["status", "role"],
+        rangeFields: ["createdAt"],
+        sortableFields: [
+          "createdAt",
+          "userName",
+          "firstName",
+          "lastName",
+          "email",
+          "role",
+          "status",
+        ],
+        defaultSortBy: "createdAt",
+        defaultOrder: "DESC",
+      });
+
+      return {
+        users: result.data,
+        pagination: {
+          ...result.pagination,
+          query,
+        },
+      };
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw new ApiError(
+          error.statusCode || 500,
+          error.message ?? "Failed to load users list"
+        );
+      }
+    }
+  }
   async save(user: CreateUserDto) {
     try {
       const { password: plainTextPassword } = user;

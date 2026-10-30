@@ -14,10 +14,10 @@ export class TransactionAuditHistory {
   @IsUUID()
   id!: string;
 
-  @Column({ type: "uuid", name: "user_id" })
+  @Column({ type: "uuid", name: "updated_by" })
   @IsNotEmpty()
   @IsUUID()
-  userId!: string;
+  updatedBy!: string;
 
   @Column({ type: "uuid", name: "transaction_id" })
   @IsNotEmpty()

@@ -45,7 +45,7 @@ export interface INote {
 }
 export interface TransactionStausHistory {
   id?: string;
-  userId: string;
+  updatedBy: string;
   transactionId: string;
   status: TransactionStatus;
   lastStatus?: TransactionStatus;

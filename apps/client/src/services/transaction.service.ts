@@ -1,8 +1,16 @@
+import type { TransactionStatus } from "@e-pocket-assignment/shared/enums";
 import { API_ROUTES } from "@e-pocket-assignment/shared/routes";
 import { apiService } from "@/services/api.service";
+import type { ApiListQuery } from "@/interfaces";
 
-const fetchTransactions = async () => {
-  return await apiService().get(`${API_ROUTES.TRANSACTIONS}`);
+const fetchTransactions = async (params?: ApiListQuery) => {
+  return await apiService().get(`${API_ROUTES.TRANSACTIONS}`, { params });
+};
+
+const updateTransactionStatus = async (id: string, status: TransactionStatus) => {
+  return await apiService().patch(`${API_ROUTES.TRANSACTIONS}/${id}`, {
+    status,
+  });
 };
 
 const fetchTotalTransactions = async () => {
@@ -25,6 +33,7 @@ const fetchCompletedTransactions = async () => {
 
 export {
   fetchTransactions,
+  updateTransactionStatus,
   fetchTotalTransactions,
   fetchTotalTransferAmount,
   fetchPendingTransactions,

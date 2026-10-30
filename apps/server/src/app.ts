@@ -29,7 +29,7 @@ app.use(API_ROUTES.HEALTH_CHECK, healthcheckRouter);
 app.use(`${API_ROUTES.AUTH}`, authRouter);
 app.use(`${API_ROUTES.USERS}`, userRouter);
 app.use(`${API_ROUTES.TRANSACTIONS}`, verifyJWT, transactionRouter);
-app.use(`${API_ROUTES.TRANSACTIONS_GRAPHS}`, graphRouter);
+app.use(`${API_ROUTES.TRANSACTIONS_GRAPHS}`, verifyJWT, graphRouter);
 // app.use("/api/v1/tweets", tweetRouter)
 // app.use("/api/v1/subscriptions", subscriptionRouter)
 

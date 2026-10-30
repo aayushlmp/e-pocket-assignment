@@ -13,6 +13,16 @@ const updateTransactionStatus = async (id: string, status: TransactionStatus) =>
   });
 };
 
+const deleteTransaction = async (id: string) => {
+  return await apiService().delete(`${API_ROUTES.TRANSACTIONS}/${id}`);
+};
+
+const addTransactionNote = async (id: string, comment: string) => {
+  return await apiService().post(`${API_ROUTES.TRANSACTIONS}/${id}/notes`, {
+    comment,
+  });
+};
+
 const fetchTotalTransactions = async () => {
   return await apiService().get(`${API_ROUTES.TRANSACTIONS}/summary/total`);
 };
@@ -34,6 +44,8 @@ const fetchCompletedTransactions = async () => {
 export {
   fetchTransactions,
   updateTransactionStatus,
+  deleteTransaction,
+  addTransactionNote,
   fetchTotalTransactions,
   fetchTotalTransferAmount,
   fetchPendingTransactions,

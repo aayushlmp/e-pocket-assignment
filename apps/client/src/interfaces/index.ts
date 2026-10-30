@@ -112,7 +112,7 @@ export interface DataTableFetchResult<T> {
 }
 
 export type DataTableFetchFn<T> = (
-  params: DataTableQueryParams
+  params: DataTableQueryParams,
 ) => Promise<DataTableFetchResult<T>>;
 
 /**
@@ -121,7 +121,7 @@ export type DataTableFetchFn<T> = (
  */
 export type DataTableRowUpdater<T> = (
   match: (row: T) => boolean,
-  patch: Partial<T>
+  patch?: Partial<T>,
 ) => void;
 
 /** Query params accepted by the paginated list endpoints (PaginationService) */

@@ -7,7 +7,9 @@ import type {
 import {
   fetchTransactions,
   updateTransactionStatus,
+  deleteTransaction,
 } from "@/services/transaction.service";
+import { ConfirmDialog } from "@/components/pages/ConfirmDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,8 +25,9 @@ import {
   NotebookPen,
   SquareChevronsDown,
 } from "lucide-react";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
+import {AddTransactionNote} from '@/components/pages/AddTransactionNote';
 
 const TransactionListCard = () => {
   const columns: DataTableColumn<ITransaction>[] = [
@@ -107,7 +110,6 @@ const TransactionListCard = () => {
     },
     [],
   );
-
   // Registered with DataTable so a successful update can patch the row
   // in place without triggering another GET.
   const rowUpdaterRef = useRef<DataTableRowUpdater<ITransaction> | null>(null);
@@ -135,7 +137,40 @@ const TransactionListCard = () => {
     },
     [],
   );
+
+  // Confirm delete dialog state
+  const [isOpenDeleteConfirmDialog, setIsOpenDeleteConfirmDialog] = useState<boolean>(false);
+  const [isOpenAddNoteDialog, setIsOpenAddNoteDialog] = useState<boolean>(false);
+  const [deleteRowId, setDeleteRowId] = useState<
+    string | null
+  >(null);
+  const [addNoteRowId, setAddNoteRowId] = useState<
+    string | null
+  >(null);
+
+  const openConfirmDialog = useCallback((id: string) => {
+    setDeleteRowId(id);
+    setIsOpenDeleteConfirmDialog(true);
+  }, []);
+
+  const handleDelete = useCallback(async () => {
+    if (!deleteRowId) return;
+    try {
+      const response = await deleteTransaction(deleteRowId);
+      toast.success(
+        response.data.message || "Transaction deleted successfully",
+      );
+      // Remove the row locally — no refetch needed
+      rowUpdaterRef.current?.((row) => row.id !== deleteRowId);
+      setIsOpenDeleteConfirmDialog(false);
+      setDeleteRowId(null);
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to delete transaction");
+    }
+  }, [deleteRowId]);
+
   return (
+    <>
     <DataTable
       fetchData={transactions}
       registerRowUpdater={registerRowUpdater}
@@ -153,25 +188,28 @@ const TransactionListCard = () => {
           { label: "Failed", value: TransactionStatus.FAILED },
         ],
       }}
-      actions={(transaction) => (
+      actions={(transaction: ITransaction) => (
         <div className="flex items-center justify-end gap-1">
           {/* Edit button */}
           <button
             type="button"
             aria-label="Edit transaction"
             title="Add Note"
-            onClick={() => console.log("Edit", transaction)}
+            onClick={() => {
+              setAddNoteRowId((transaction?.id as string) || '')
+              setIsOpenAddNoteDialog(true);
+            }}
             className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600 cursor-pointer"
           >
             <NotebookPen size={17} />
           </button>
 
-          {/* View button */}
+          {/* Delete button */}
           <button
             type="button"
-            aria-label="View transaction"
+            aria-label="Delete transaction"
             title="Delete"
-            onClick={() => console.log("View transaction", transaction)}
+            onClick={() => openConfirmDialog((transaction?.id as string) || '')}
             className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600 cursor-pointer"
           >
             <CircleX size={17} />
@@ -225,6 +263,16 @@ const TransactionListCard = () => {
         </div>
       )}
     />
+    <ConfirmDialog
+      open={isOpenDeleteConfirmDialog}
+      onClose={setIsOpenDeleteConfirmDialog}
+      title="Delete transaction"
+      description="Are you sure you want to delete this transaction? This action cannot be undone."
+      onConfirm={handleDelete}
+      destructive={false}
+    />
+    <AddTransactionNote open={isOpenAddNoteDialog} onClose={setIsOpenAddNoteDialog} transactionId={addNoteRowId}/>
+    </>
   );
 };
 export default TransactionListCard;

@@ -22,6 +22,7 @@ export const AuthProvider = ({
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
     () => localStorage.getItem("accessToken") ? true : false
   );
+  
   const setAuthContext = (loginResponseDto: LoginResponseDto) => {
     const {accessToken, refreshToken, ...user} = loginResponseDto;
     localStorage.setItem(`user`, JSON.stringify(user));

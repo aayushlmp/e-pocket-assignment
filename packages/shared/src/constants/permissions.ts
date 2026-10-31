@@ -29,6 +29,7 @@ export type Permission = (typeof Permission)[keyof typeof Permission];
  */
 export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   [UserRole.SUPER_ADMIN]: [
+    Permission.USER_VIEW,
     Permission.USER_CREATE,
     Permission.USER_UPDATE,
     Permission.USER_DELETE,
@@ -40,6 +41,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.TRANSACTION_DELETE,
   ],
   [UserRole.ADMIN]: [
+    Permission.USER_VIEW,
     Permission.USER_CREATE,
     Permission.USER_UPDATE,
     Permission.USER_DELETE,

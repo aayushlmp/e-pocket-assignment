@@ -101,7 +101,7 @@ export const MetricsGrid = () => {
               <Icon className="size-4" />
             </Badge>
           }
-          // footer={<div className="text-muted-foreground">{<i className="text-xs">{footer}</i>}</div>}
+          footer={footer && <div className="text-muted-foreground">{<i className="text-xs">{footer}</i>}</div>}
         />
       ))}
     </div>

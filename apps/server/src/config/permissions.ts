@@ -129,7 +129,6 @@ export function requirePermission(permission: Permission) {
   return (req: any, _res: any, next: any) => {
     const user = req.user;
     const method = req.method as HttpMethod;
-
     if (!user || !user.role) {
       const error = new Error("Unauthorized: User role not found");
       (error as any).statusCode = 401;

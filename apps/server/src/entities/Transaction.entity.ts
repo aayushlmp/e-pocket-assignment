@@ -7,7 +7,7 @@ import {
   OneToMany,
 } from "typeorm";
 import { IsNotEmpty, IsUUID, IsOptional } from "class-validator";
-import { Note } from "../entities/Note.entity.ts";
+import type { Note } from "./Note.entity.ts";
 import { TransactionStatus } from "@e-pocket-assignment/shared/enums";
 
 @Entity(`transactions`)
@@ -57,6 +57,6 @@ export class Transaction {
   @UpdateDateColumn({ type: "timestamp", name: "updated_at" })
   updatedAt!: Date;
 
-  @OneToMany(() => Note, (note) => note.transaction, { cascade: true })
+  @OneToMany("Note" as any, (note: Note) => note.transaction, { cascade: true })
   notes!: Note[];
 }

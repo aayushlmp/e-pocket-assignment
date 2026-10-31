@@ -152,7 +152,7 @@ const Login = () => {
               <Field>
                 <Button type="submit">Login</Button>
 
-                <FieldDescription className="text-center">
+                <FieldDescription className="text-center text-xs">
                   Don't have an account?{" "}
                   <Link to="/auth/signup">Sign up</Link>
                 </FieldDescription>

@@ -272,7 +272,7 @@ const SignUp = () => {
               <Field>
                 <Button type="submit">Sign up</Button>
 
-                <FieldDescription className="text-center">
+                <FieldDescription className="text-center text-xs">
                   Already have an account?{" "}
                   <Link to="/auth/login">Login</Link>
                 </FieldDescription>

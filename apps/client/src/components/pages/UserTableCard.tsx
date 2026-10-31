@@ -2,9 +2,12 @@ import { DataTable } from "@/components/pages/DataTable";
 import type { DataTableColumn, DataTableFetchFn } from "@/interfaces";
 import { fetchUsers } from "@/services/user.service";
 import { Status } from "@e-pocket-assignment/shared/enums";
+import { Permission } from "@e-pocket-assignment/shared/constants";
 import type { IUser } from "@e-pocket-assignment/shared/interfaces";
-import { MoreHorizontal } from "lucide-react";
+import { Circle, CircleX, MoreHorizontal } from "lucide-react";
 import { useCallback } from "react";
+import { Can } from "@/components/common/Can";
+import { usePermission } from "@/hooks/use-permission";
 
 const UserTableCard = () => {
   const columns: DataTableColumn<IUser>[] = [
@@ -84,13 +87,17 @@ const UserTableCard = () => {
         ],
       }}
       actions={(user) => (
-        <button
-          type="button"
-          onClick={() => console.log(user)}
-          className="rounded-lg p-2 hover:bg-slate-100"
-        >
-          <MoreHorizontal size={19} />
-        </button>
+        <div className="flex items-center justify-end gap-1">
+          <Can permission={Permission.USER_DELETE}>
+            <button
+              type="button"
+              onClick={() => console.log("Delete user:", user)}
+              className="rounded-lg p-2 hover:bg-red-50 hover:text-red-600"
+            >
+              <CircleX size={17}/>
+            </button>
+          </Can>
+        </div>
       )}
     />
   );

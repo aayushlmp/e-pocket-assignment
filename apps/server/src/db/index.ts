@@ -16,8 +16,8 @@ const options = {
   username: process.env.DB_USERNAME || "root",
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  synchronize: true, // Auto-creates database tables on start (Turn off in production)
-  logging: true,
+  synchronize: process.env.DB_SYNCHRONIZATION ?? true, // Auto-creates database tables on start (Turn off in production)
+  logging: process.env.DB_LOGGING ?? false,
   entities: [User, Transaction, Note, TransactionAuditHistory],
   migrations: [],
   subscribers: [],

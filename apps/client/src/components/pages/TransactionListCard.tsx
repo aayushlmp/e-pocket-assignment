@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TransactionStatus } from "@e-pocket-assignment/shared/enums";
+import { Permission } from "@e-pocket-assignment/shared/constants";
 import type { ITransaction } from "@e-pocket-assignment/shared/interfaces";
 import {
   CircleX,
@@ -27,6 +28,7 @@ import {
 } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
+import { Can } from "@/components/common/Can";
 import {AddTransactionNote} from '@/components/pages/AddTransactionNote';
 
 const TransactionListCard = () => {
@@ -190,76 +192,82 @@ const TransactionListCard = () => {
       }}
       actions={(transaction: ITransaction) => (
         <div className="flex items-center justify-end gap-1">
-          {/* Edit button */}
-          <button
-            type="button"
-            aria-label="Edit transaction"
-            title="Add Note"
-            onClick={() => {
-              setAddNoteRowId((transaction?.id as string) || '')
-              setIsOpenAddNoteDialog(true);
-            }}
-            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600 cursor-pointer"
-          >
-            <NotebookPen size={17} />
-          </button>
+          {/* Edit / Add Note button */}
+          <Can permission={Permission.TRANSACTION_ADD_NOTE}>
+            <button
+              type="button"
+              aria-label="Add Note"
+              title="Add Note"
+              onClick={() => {
+                setAddNoteRowId((transaction?.id as string) || '')
+                setIsOpenAddNoteDialog(true);
+              }}
+              className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600 cursor-pointer"
+            >
+              <NotebookPen size={17} />
+            </button>
+          </Can>
 
           {/* Delete button */}
-          <button
-            type="button"
-            aria-label="Delete transaction"
-            title="Delete"
-            onClick={() => openConfirmDialog((transaction?.id as string) || '')}
-            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600 cursor-pointer"
-          >
-            <CircleX size={17} />
-          </button>
+          <Can permission={Permission.TRANSACTION_DELETE}>
+            <button
+              type="button"
+              aria-label="Delete transaction"
+              title="Delete"
+              onClick={() => openConfirmDialog((transaction?.id as string) || '')}
+              className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600 cursor-pointer"
+            >
+              <CircleX size={17} />
+            </button>
+          </Can>
 
           {/* Status dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <button
-                  type="button"
-                  aria-label="Change transaction status"
-                  title="Change status"
-                  className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600"
-                >
-                  <SquareChevronsDown size={17} />
-                </button>
-              }
-            />
-
-            <DropdownMenuContent
-              align="end"
-              side="bottom"
-              className="min-w-36 rounded-lg"
-            >
-              <DropdownMenuRadioGroup
-                value={transaction.status}
-                onValueChange={(status) =>
-                  changeStatus(
-                    { id: transaction.id, status: transaction.status },
-                    status as TransactionStatus,
-                  )
+          <Can permission={Permission.USER_CHANGE_STATUS}>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <button
+                    type="button"
+                    aria-label="Change transaction status"
+                    title="Change status"
+                    className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600"
+                  >
+                    <SquareChevronsDown size={17} />
+                  </button>
                 }
+              />
+
+              <DropdownMenuContent
+                align="end"
+                side="bottom"
+                className="min-w-36 rounded-lg"
               >
-                <DropdownMenuLabel>Status</DropdownMenuLabel>
+                <DropdownMenuRadioGroup
+                  value={transaction.status}
+                  onValueChange={(status) =>
+                    changeStatus(
+                      { id: transaction.id, status: transaction.status },
+                      status as TransactionStatus,
+                    )
+                  }
+                >
+                  <DropdownMenuLabel>Status</DropdownMenuLabel>
 
-                <DropdownMenuRadioItem value={TransactionStatus.APPROVED}>
-                  Approved
-                </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value={TransactionStatus.APPROVED}>
+                    Approved
+                  </DropdownMenuRadioItem>
 
-                <DropdownMenuRadioItem value={TransactionStatus.PENDING}>
-                  Pending
-                </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value={TransactionStatus.PENDING}>
+                    Pending
+                  </DropdownMenuRadioItem>
 
-                <DropdownMenuRadioItem value={TransactionStatus.FAILED}>
-                  Failed
-                </DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <DropdownMenuRadioItem value={TransactionStatus.FAILED}>
+                    Failed
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </Can>
         </div>
       )}
     />

@@ -4,6 +4,8 @@ import Login from "@/components/pages/Login";
 import SignUp from "@/components/pages/SignUp";
 import { Dashboard } from "@/components/pages/Dashboard";
 import { PageNotFound } from "@/components/pages/PageNotFound";
+import RoleRedirect from "@/routes/RoleRedirect";
+import UserDashboard from "@/components/pages/UserDashboard";
 
 import AuthLayout from "@/layouts/AuthLayout";
 import Layout from "@/layouts/Layout";
@@ -11,11 +13,12 @@ import Layout from "@/layouts/Layout";
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import PublicRoute from "@/routes/PublicRoute";
 import TransactionListCard from "@/components/pages/TransactionListCard";
+import AdminRoute from "@/routes/AdminRoute";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/auth/login" replace />,
+    element: <RoleRedirect />,
   },
   {
     element: <PublicRoute />,
@@ -44,8 +47,8 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        path: "/",
-        element: <Layout />,
+        path: "/admin",
+        element: <AdminRoute><Layout /></AdminRoute>,
         children: [
           {
             path: "dashboard",
@@ -54,6 +57,16 @@ export const router = createBrowserRouter([
           {
             path: "transactions",
             element: <TransactionListCard />
+          },
+        ],
+      },
+      {
+        path: "/dashboard",
+        element: <Layout />,
+        children: [
+          {
+            index: true,
+            element: <UserDashboard />,
           },
         ],
       },

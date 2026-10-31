@@ -21,6 +21,10 @@
     "./interfaces": {
       "types": "./dist/interfaces/index.d.ts",
       "import": "./dist/interfaces/index.js"
+    },
+    "./constants": {
+      "types": "./dist/constants/permissions.d.ts",
+      "import": "./dist/constants/permissions.js"
     }
   },
   "scripts": {

@@ -1,4 +1,9 @@
 import { UserRole } from "@e-pocket-assignment/shared/enums";
+import {
+  Permission,
+  ROLE_PERMISSIONS as SHARED_ROLE_PERMISSIONS,
+  roleHasPermission,
+} from "@e-pocket-assignment/shared/constants";
 
 export type HttpMethod =
   "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD" | "OPTIONS";
@@ -10,39 +15,29 @@ export interface RoutePermission {
   paths?: string[];
 }
 
-export interface RolePermissions {
-  [role: string]: {
-    allowedMethods: HttpMethod[];
-    forbiddenMethods: HttpMethod[];
-    /** Paths this role can access (empty = all) */
-    allowedPaths?: string[];
-    /** Paths this role cannot access */
-    forbiddenPaths?: string[];
-  };
-}
-
-export const ROLE_PERMISSIONS: RolePermissions = {
-  [UserRole.SUPER_ADMIN]: {
-    allowedMethods: [
-      "GET",
-      "POST",
-      "PUT",
-      "PATCH",
-      "DELETE",
-      "HEAD",
-      "OPTIONS",
-    ],
-    forbiddenMethods: [],
-  },
-  [UserRole.ADMIN]: {
-    allowedMethods: ["GET", "POST", "PUT", "PATCH", "HEAD", "OPTIONS"],
-    forbiddenMethods: ["DELETE"],
-  },
-  [UserRole.USER]: {
-    allowedMethods: ["GET", "HEAD", "OPTIONS"],
-    forbiddenMethods: ["POST", "PUT", "PATCH", "DELETE"],
-  },
+/**
+ * Maps Permission constants to HTTP methods for route-level authorization.
+ * This bridges the gap between action-based permissions (frontend) and
+ * HTTP method-based permissions (backend middleware).
+ */
+export const PERMISSION_TO_METHODS: Record<Permission, HttpMethod[]> = {
+  [Permission.USER_VIEW]: ["GET"],
+  [Permission.USER_CREATE]: ["POST"],
+  [Permission.USER_UPDATE]: ["PUT", "PATCH"],
+  [Permission.USER_DELETE]: ["DELETE"],
+  [Permission.USER_CHANGE_STATUS]: ["PATCH", "PUT"],
+  [Permission.TRANSACTION_VIEW]: ["GET"],
+  [Permission.TRANSACTION_CREATE]: ["POST"],
+  [Permission.TRANSACTION_UPDATE]: ["PUT", "PATCH"],
+  [Permission.TRANSACTION_DELETE]: ["DELETE"],
+  [Permission.TRANSACTION_ADD_NOTE]: ["POST"],
 };
+
+/**
+ * Re-export shared role permissions for backend use.
+ * Uses the shared package as single source of truth.
+ */
+export const ROLE_PERMISSIONS = SHARED_ROLE_PERMISSIONS;
 
 export const DEFAULT_PERMISSIONS: RoutePermission[] = [
   {
@@ -97,18 +92,19 @@ export const PATH_PERMISSIONS: Record<string, RoutePermission[]> = {
   ],
 };
 
-export function getAllowedActions(role: UserRole): HttpMethod[] {
-  return ROLE_PERMISSIONS[role]?.allowedMethods ?? [];
-}
-
-export function getDeniedPermissions(role: UserRole): HttpMethod[] {
-  return ROLE_PERMISSIONS[role]?.forbiddenMethods ?? [];
+export function getAllowedMethods(role: UserRole): HttpMethod[] {
+  // Derive from shared permissions
+  const permissions = ROLE_PERMISSIONS[role] ?? [];
+  const methods = new Set<HttpMethod>();
+  for (const perm of permissions) {
+    PERMISSION_TO_METHODS[perm]?.forEach((m) => methods.add(m));
+  }
+  return Array.from(methods);
 }
 
 export function checkPermission(method: HttpMethod, role: UserRole): boolean {
-  const allowed = getAllowedActions(role);
-  const forbidden = getDeniedPermissions(role);
-  return allowed.includes(method) && !forbidden.includes(method);
+  const allowed = getAllowedMethods(role);
+  return allowed.includes(method);
 }
 
 export function matchPath(pattern: string, path: string): boolean {
@@ -124,3 +120,49 @@ export function getPermissions(path: string): RoutePermission[] {
   }
   return DEFAULT_PERMISSIONS;
 }
+
+/**
+ * Creates a middleware that checks for a specific Permission constant.
+ * Usage: router.delete("/:id", authenticate, requirePermission(Permission.USER_DELETE), handler)
+ */
+export function requirePermission(permission: Permission) {
+  return (req: any, _res: any, next: any) => {
+    const user = req.user;
+    const method = req.method as HttpMethod;
+
+    if (!user || !user.role) {
+      const error = new Error("Unauthorized: User role not found");
+      (error as any).statusCode = 401;
+      throw error;
+    }
+
+    // Check if user's role has this permission
+    if (!roleHasPermission(user.role as UserRole, permission)) {
+      const error = new Error(
+        `Forbidden: ${user.role} role cannot ${permission.replace(/_/g, " ").toLowerCase()}`
+      );
+      (error as any).statusCode = 403;
+      throw error;
+    }
+
+    // Also verify the HTTP method matches the permission
+    const allowedMethods = PERMISSION_TO_METHODS[permission];
+    if (allowedMethods && !allowedMethods.includes(method)) {
+      const error = new Error(
+        `Forbidden: ${permission} requires ${allowedMethods.join("/")} method`
+      );
+      (error as any).statusCode = 403;
+      throw error;
+    }
+
+    next();
+  };
+}
+
+export {
+  Permission,
+  roleHasPermission,
+  roleHasAnyPermission,
+  roleHasAllPermissions,
+  getPermissionsForRole,
+} from "@e-pocket-assignment/shared/constants";

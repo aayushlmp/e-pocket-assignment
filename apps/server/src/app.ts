@@ -28,9 +28,19 @@ app.use(cookieParser());
 
 app.use(API_ROUTES.HEALTH_CHECK, healthcheckRouter);
 app.use(`${API_ROUTES.AUTH}`, authRouter);
-app.use(`${API_ROUTES.USERS}`, verifyJWT, requirePermissions, userRouter);
-app.use(`${API_ROUTES.TRANSACTIONS_GRAPHS}`, verifyJWT, requirePermissions, graphRouter);
-app.use(`${API_ROUTES.TRANSACTIONS}`, verifyJWT, requirePermissions, transactionRouter);
+app.use(`${API_ROUTES.USERS}`, userRouter);
+app.use(
+  `${API_ROUTES.TRANSACTIONS_GRAPHS}`,
+  verifyJWT,
+  requirePermissions,
+  graphRouter
+);
+app.use(
+  `${API_ROUTES.TRANSACTIONS}`,
+  verifyJWT,
+  requirePermissions,
+  transactionRouter
+);
 
 app.use(errorMiddleware);
 

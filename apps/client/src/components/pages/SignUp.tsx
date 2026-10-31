@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,38 +17,132 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+
 import { createUser } from "@/services/user.service";
-import { toast } from "sonner";
+import { validateEmail } from "@/utils";
+
+type SignUpFormData = {
+  firstName: string;
+  lastName: string;
+  userName: string;
+  email: string;
+  password: string;
+};
+
+type ValidationErrors = Partial<
+  Record<keyof SignUpFormData, string>
+>;
+
+const initialUserData: SignUpFormData = {
+  firstName: "",
+  lastName: "",
+  userName: "",
+  email: "",
+  password: "",
+};
+
+const validateField = (
+  name: keyof SignUpFormData,
+  value: string
+): string => {
+  const trimmedValue = value.trim();
+
+  switch (name) {
+    case "firstName":
+      return trimmedValue ? "" : "First name is required.";
+
+    case "lastName":
+      return trimmedValue ? "" : "Last name is required.";
+
+    case "userName":
+      return trimmedValue ? "" : "Username is required.";
+
+    case "email":
+      if (!trimmedValue) return "Email is required.";
+      if (!validateEmail(trimmedValue)) {
+        return "Please enter a valid email address.";
+      }
+      return "";
+
+    case "password":
+      return value ? "" : "Password is required.";
+
+    default:
+      return "";
+  }
+};
+
+const validateForm = (
+  values: SignUpFormData
+): ValidationErrors => {
+  return {
+    firstName: validateField("firstName", values.firstName),
+    lastName: validateField("lastName", values.lastName),
+    userName: validateField("userName", values.userName),
+    email: validateField("email", values.email),
+    password: validateField("password", values.password),
+  };
+};
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    userName: ""
-  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  const [userData, setUserData] =
+    useState<SignUpFormData>(initialUserData);
+
+  const [validationErrors, setValidationErrors] =
+    useState<ValidationErrors>({});
+
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = event.target;
+    const fieldName = name as keyof SignUpFormData;
 
     setUserData((prev) => ({
       ...prev,
-      [name]: value,
+      [fieldName]: value,
+    }));
+
+    setValidationErrors((prev) => ({
+      ...prev,
+      [fieldName]: validateField(fieldName, value),
     }));
   };
 
-  const handleSubmit = async (e: React.SubmitEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (
+    event: React.SubmitEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+
+    const errors = validateForm(userData);
+
+    setValidationErrors(errors);
+
+    if (Object.values(errors).some(Boolean)) return;
+
     try {
-      const response = await createUser(userData);
-      if(response) {
-        toast.success(response.data.message || "User added successfully");
-        navigate('/auth/login', { replace: true });
+      const response = await createUser({
+        ...userData,
+        firstName: userData.firstName.trim(),
+        lastName: userData.lastName.trim(),
+        userName: userData.userName.trim(),
+        email: userData.email.trim(),
+      });
+
+      if (response) {
+        toast.success(
+          response.data.message || "User added successfully"
+        );
+
+        navigate("/auth/login", { replace: true });
       }
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error: unknown) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Unable to create account"
+      );
     }
   };
 
@@ -54,55 +150,86 @@ const SignUp = () => {
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Create an account</CardTitle>
+          <CardTitle className="text-xl">
+            Create an account
+          </CardTitle>
           <CardDescription>
             Enter your details below to create your account
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form noValidate onSubmit={handleSubmit}>
             <FieldGroup>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field>
-                  <FieldLabel htmlFor="firstName">First name</FieldLabel>
+                <Field data-invalid={!!validationErrors.firstName}>
+                  <FieldLabel htmlFor="firstName">
+                    First name
+                  </FieldLabel>
+
                   <Input
                     id="firstName"
                     name="firstName"
                     value={userData.firstName}
                     onChange={handleChange}
                     placeholder="John"
-                    required
+                    aria-invalid={!!validationErrors.firstName}
                   />
+
+                  {validationErrors.firstName && (
+                    <FieldDescription className="text-destructive text-xs">
+                      {validationErrors.firstName}
+                    </FieldDescription>
+                  )}
                 </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="lastName">Last name</FieldLabel>
+                <Field data-invalid={!!validationErrors.lastName}>
+                  <FieldLabel htmlFor="lastName">
+                    Last name
+                  </FieldLabel>
+
                   <Input
                     id="lastName"
                     name="lastName"
                     value={userData.lastName}
                     onChange={handleChange}
                     placeholder="Doe"
-                    required
+                    aria-invalid={!!validationErrors.lastName}
                   />
+
+                  {validationErrors.lastName && (
+                    <FieldDescription className="text-destructive text-xs">
+                      {validationErrors.lastName}
+                    </FieldDescription>
+                  )}
                 </Field>
               </div>
 
-              <Field>
-                <FieldLabel htmlFor="userName">Username</FieldLabel>
+              <Field data-invalid={!!validationErrors.userName}>
+                <FieldLabel htmlFor="userName">
+                  Username
+                </FieldLabel>
+
                 <Input
                   id="userName"
                   name="userName"
-                  type="userName"
+                  type="text"
                   value={userData.userName}
                   onChange={handleChange}
                   placeholder="John12"
+                  aria-invalid={!!validationErrors.userName}
                 />
+
+                {validationErrors.userName && (
+                  <FieldDescription className="text-destructive text-xs">
+                    {validationErrors.userName}
+                  </FieldDescription>
+                )}
               </Field>
 
-              <Field>
+              <Field data-invalid={!!validationErrors.email}>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
+
                 <Input
                   id="email"
                   name="email"
@@ -110,26 +237,44 @@ const SignUp = () => {
                   value={userData.email}
                   onChange={handleChange}
                   placeholder="m@example.com"
-                  required
+                  aria-invalid={!!validationErrors.email}
                 />
+
+                {validationErrors.email && (
+                  <FieldDescription className="text-destructive text-xs">
+                    {validationErrors.email}
+                  </FieldDescription>
+                )}
               </Field>
 
-              <Field>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
+              <Field data-invalid={!!validationErrors.password}>
+                <FieldLabel htmlFor="password">
+                  Password
+                </FieldLabel>
+
                 <Input
                   id="password"
                   name="password"
                   type="password"
                   value={userData.password}
                   onChange={handleChange}
-                  required
+                  autoComplete="new-password"
+                  aria-invalid={!!validationErrors.password}
                 />
+
+                {validationErrors.password && (
+                  <FieldDescription className="text-destructive text-xs">
+                    {validationErrors.password}
+                  </FieldDescription>
+                )}
               </Field>
 
               <Field>
                 <Button type="submit">Sign up</Button>
+
                 <FieldDescription className="text-center">
-                  Already have an account? <Link to="/auth/login">Login</Link>
+                  Already have an account?{" "}
+                  <Link to="/auth/login">Login</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
@@ -138,8 +283,14 @@ const SignUp = () => {
       </Card>
 
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our{" "}
+        <a href="#" className="underline">
+          Terms of Service
+        </a>{" "}
+        and{" "}
+        <a href="#" className="underline">
+          Privacy Policy
+        </a>.
       </FieldDescription>
     </div>
   );

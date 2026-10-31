@@ -55,8 +55,6 @@ export const router = createBrowserRouter([
             path: "transactions",
             element: <TransactionListCard />
           },
-          // Add other protected pages here.
-          // { path: "transactions", element: <Transactions /> },
         ],
       },
     ],

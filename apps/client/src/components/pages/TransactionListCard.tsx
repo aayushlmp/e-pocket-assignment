@@ -267,7 +267,7 @@ const TransactionListCard = () => {
       open={isOpenDeleteConfirmDialog}
       onClose={setIsOpenDeleteConfirmDialog}
       title="Delete transaction"
-      description="Are you sure you want to delete this transaction? This action cannot be undone."
+      description="Are you sure you want to delete this transaction?"
       onConfirm={handleDelete}
       destructive={false}
     />

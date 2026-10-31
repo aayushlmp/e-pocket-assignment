@@ -11,7 +11,9 @@ export class UserService {
   constructor(private userRepository: Repository<User>) {}
   async findAll(query: PaginationQuery) {
     try {
-      const queryBuilder = this.userRepository.createQueryBuilder("user");
+      const queryBuilder = this.userRepository
+        .createQueryBuilder("user")
+        .where("user.role != :role", { role: UserRole.SUPER_ADMIN });
 
       const result = await PaginationService.paginate(queryBuilder, query, {
         alias: "user",

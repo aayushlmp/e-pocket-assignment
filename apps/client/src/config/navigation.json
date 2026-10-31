@@ -1,0 +1,13 @@
+{
+  "SuperAdmin": [
+    { "title": "Dashboard", "url": "/admin/dashboard", "icon": "LayoutDashboard" },
+    { "title": "Transactions", "url": "/admin/transactions", "icon": "BanknoteArrowUp" }
+  ],
+  "Admin": [
+    { "title": "Dashboard", "url": "/admin/dashboard", "icon": "LayoutDashboard" },
+    { "title": "Transactions", "url": "/admin/transactions", "icon": "BanknoteArrowUp" }
+  ],
+  "User": [
+    { "title": "Dashboard", "url": "/dashboard", "icon": "LayoutDashboard" }
+  ]
+}

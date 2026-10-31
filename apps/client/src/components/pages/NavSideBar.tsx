@@ -15,30 +15,26 @@ import {
 import { MainNavigation } from "@/components/pages/MainNavigation";
 import { NavUser } from "@/components/pages/NavUser";
 import { Logo } from "@/components/pages/Logo";
+import { useAuth } from "@/contexts/AuthContext";
+import type { LucideIcon } from "lucide-react";
+import navigationData from "@/config/navigation.json";
 
-const navigations = {
-  items: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Transactions",
-      url: "/transactions",
-      icon: BanknoteArrowUp,
-    },
-    // {
-    //   title: "Users",
-    //   url: "/users",
-    //   icon: UserGroup,
-    // },
-  ],
+const iconMap: Record<string, LucideIcon> = {
+  LayoutDashboard,
+  BanknoteArrowUp,
 };
 
 export const NavSideBar = ({ ...props }) => {
-  const {state} = useSidebar();
+  const { state } = useSidebar();
+  const { user } = useAuth();
+  const role = user?.role || "User";
   const logo = state === "collapsed" ? `/remittance-logo.svg` : `/logo.svg`;
+
+  const items: { title: string; url: string; icon?: LucideIcon }[] = (navigationData as Record<string, { title: string; url: string; icon: string }[]>)[role]?.map((item) => ({
+    ...item,
+    icon: iconMap[item.icon] || LayoutDashboard,
+  })) || [];
+
   return (
     <Sidebar collapsible="icon" variant="sidebar" {...props}>
       <SidebarHeader>
@@ -54,7 +50,7 @@ export const NavSideBar = ({ ...props }) => {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <MainNavigation items={navigations.items} />
+        <MainNavigation items={items} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

@@ -30,6 +30,7 @@ export const router = createBrowserRouter([
               );
               return { Component: Login };
             },
+            hydrateFallbackElement: <div>Loading...</div>,
           },
           {
             path: "signup",
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
               );
               return { Component: SignUp };
             },
+            hydrateFallbackElement: <div>Loading...</div>,
           },
         ],
       },

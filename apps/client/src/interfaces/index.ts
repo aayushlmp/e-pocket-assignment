@@ -33,6 +33,7 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   signInSuccessHandler: (user: LoginResponseDto) => void;
   signOutSuccessHandler: () => void;
+  getUserInitials: () => string;
 }
 
 export interface DashboardTransactionMetric {

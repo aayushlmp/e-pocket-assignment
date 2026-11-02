@@ -43,7 +43,9 @@ export const AuthProvider = ({
     setUser(null);
     setIsAuthenticated(false);
   };
-  
+  const getUserInitials = () => {
+    return `${user?.firstName?.charAt(0) ?? ""}${user?.lastName?.charAt(0) ?? ""}`.toUpperCase() ?? '';
+  }
   return (
     <AuthContext.Provider
       value={{
@@ -51,6 +53,7 @@ export const AuthProvider = ({
         isAuthenticated: !!isAuthenticated,
         signInSuccessHandler,
         signOutSuccessHandler,
+        getUserInitials
       }}
     >
       {children}

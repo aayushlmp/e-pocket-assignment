@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { TransactionStatusDistributionChart } from "@/components/pages/TransactionStatusDistributionChart";
-import { TransactionByCurrencyChart } from "./TransactionByCurrencyChart";
-import { DashboardSkeleton } from "@/components/DashboardSkelton";
+import { TransactionByCurrencyChart } from "@/components/pages/TransactionByCurrencyChart";
+import { DashboardSkeleton } from "@/components/pages/DashboardSkelton";
 const UserTableCard = lazy(() => import('@/components/pages/UserTableCard'));
 const MetricsGrid = lazy(() => import('@/components/pages/MetricsGrid').then(c => ({default: c.MetricsGrid})));
 

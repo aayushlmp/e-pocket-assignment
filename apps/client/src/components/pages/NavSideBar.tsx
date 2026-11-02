@@ -8,16 +8,13 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  LayoutDashboard,
-  BanknoteArrowUp,
-} from "lucide-react";
+import { LayoutDashboard, BanknoteArrowUp } from "lucide-react";
 import { MainNavigation } from "@/components/pages/MainNavigation";
-import { NavUser } from "@/components/pages/NavUser";
 import { Logo } from "@/components/pages/Logo";
 import { useAuth } from "@/contexts/AuthContext";
 import type { LucideIcon } from "lucide-react";
 import navigationData from "@/config/navigation.json";
+import { UserDropdownMenu } from "@/components/pages/UserDropdownMenu";
 
 const iconMap: Record<string, LucideIcon> = {
   LayoutDashboard,
@@ -30,10 +27,16 @@ export const NavSideBar = ({ ...props }) => {
   const role = user?.role || "User";
   const logo = state === "collapsed" ? `/remittance-logo.svg` : `/logo.svg`;
 
-  const items: { title: string; url: string; icon?: LucideIcon }[] = (navigationData as Record<string, { title: string; url: string; icon: string }[]>)[role]?.map((item) => ({
-    ...item,
-    icon: iconMap[item.icon] || LayoutDashboard,
-  })) || [];
+  const items: { title: string; url: string; icon?: LucideIcon }[] =
+    (
+      navigationData as Record<
+        string,
+        { title: string; url: string; icon: string }[]
+      >
+    )[role]?.map((item) => ({
+      ...item,
+      icon: iconMap[item.icon] || LayoutDashboard,
+    })) || [];
 
   return (
     <Sidebar collapsible="icon" variant="sidebar" {...props}>
@@ -41,11 +44,7 @@ export const NavSideBar = ({ ...props }) => {
         <SidebarMenu>
           <SidebarMenuItem>
             {/* Swapped asChild to the render prop syntax */}
-            <SidebarMenuButton
-              render={
-                <Logo src={logo} />
-              }
-            />
+            <SidebarMenuButton render={<Logo src={logo} />} />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
@@ -53,7 +52,11 @@ export const NavSideBar = ({ ...props }) => {
         <MainNavigation items={items} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <UserDropdownMenu />
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );

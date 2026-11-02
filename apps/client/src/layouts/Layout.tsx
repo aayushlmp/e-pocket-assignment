@@ -1,5 +1,5 @@
-import { Header } from "@/components/pages/Header";
-import { NavSideBar } from "@/components/pages/NavSideBar";
+import { Header } from "@/components/pages/header/Header";
+import { NavSideBar } from "@/components/pages/nav/NavSideBar";
 import {
   SidebarInset,
   SidebarProvider,

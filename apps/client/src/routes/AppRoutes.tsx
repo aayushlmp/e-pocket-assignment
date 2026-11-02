@@ -26,7 +26,7 @@ export const router = createBrowserRouter([
             path: "login",
             lazy: async () => {
               const { default: Login } = await import(
-                "@/components/pages/Login"
+                "@/components/pages/auth/Login"
               );
               return { Component: Login };
             },
@@ -36,7 +36,7 @@ export const router = createBrowserRouter([
             path: "signup",
             lazy: async () => {
               const { default: SignUp } = await import(
-                "@/components/pages/SignUp"
+                "@/components/pages/auth/SignUp"
               );
               return { Component: SignUp };
             },
@@ -60,7 +60,7 @@ export const router = createBrowserRouter([
         path: "dashboard",
         lazy: async () => {
           const { Dashboard } = await import(
-            "@/components/pages/Dashboard"
+            "@/components/pages/dashboards/Dashboard"
           );
           return { Component: Dashboard };
         },
@@ -69,7 +69,7 @@ export const router = createBrowserRouter([
         path: "transactions",
         lazy: async () => {
           const { default: TransactionListCard } = await import(
-            "@/components/pages/TransactionListCard"
+            "@/components/pages/cards/TransactionListCard"
           );
           return { Component: TransactionListCard };
         },
@@ -86,7 +86,7 @@ export const router = createBrowserRouter([
         index: true,
         lazy: async () => {
           const { default: UserDashboard } = await import(
-            "@/components/pages/UserDashboard"
+            "@/components/pages/cards/UserDashboard"
           );
           return { Component: UserDashboard };
         },
@@ -99,7 +99,7 @@ export const router = createBrowserRouter([
     path: "*",
     lazy: async () => {
       const { PageNotFound } = await import(
-        "@/components/pages/PageNotFound"
+        "@/components/common/PageNotFound"
       );
       return { Component: PageNotFound };
     },

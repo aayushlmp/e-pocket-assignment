@@ -1,5 +1,5 @@
-import { CardWrapper } from "@/components/pages/CardWrapper";
-import { BarChartWrapper } from "@/components/pages/BarChartWrapper";
+import { CardWrapper } from "@/components/pages/cards/CardWrapper";
+import { BarChartWrapper } from "@/components/pages/charts/BarChartWrapper";
 import { TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ChartConfig } from "@/components/ui/chart";

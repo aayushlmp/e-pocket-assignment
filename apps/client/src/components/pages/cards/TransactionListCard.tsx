@@ -1,4 +1,4 @@
-import { DataTable } from "@/components/pages/DataTable";
+import { DataTable } from "@/components/pages/data-tables/DataTable";
 import type {
   DataTableColumn,
   DataTableFetchFn,
@@ -9,7 +9,7 @@ import {
   updateTransactionStatus,
   deleteTransaction,
 } from "@/services/transaction.service";
-import { ConfirmDialog } from "@/components/pages/ConfirmDialog";
+import { ConfirmDialog } from "@/components/pages/dialogs/ConfirmDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +29,7 @@ import {
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Can } from "@/components/common/Can";
-import {AddTransactionNote} from '@/components/pages/AddTransactionNote';
+import {AddTransactionNote} from '@/components/pages/dialogs/AddTransactionNote';
 
 const TransactionListCard = () => {
   const columns: DataTableColumn<ITransaction>[] = [

@@ -2,7 +2,7 @@ import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { EllipsisVertical } from "lucide-react";
-import { UserNavInfo } from "@/components/pages/UserNavInfo";
+import { UserNavInfo } from "@/components/pages/nav/UserNavInfo";
 import type { IUser } from "@e-pocket-assignment/shared/interfaces";
 import type React from "react";
 

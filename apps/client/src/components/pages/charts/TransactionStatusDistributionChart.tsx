@@ -1,5 +1,5 @@
-import { CardWrapper } from "@/components/pages/CardWrapper";
-import { PieChartWrapper } from "@/components/pages/PieChartWrapper";
+import { CardWrapper } from "@/components/pages/cards/CardWrapper";
+import { PieChartWrapper } from "@/components/pages/charts/PieChartWrapper";
 import type { StatusDistributionChart } from "@/interfaces";
 import { fetchStatusDistribution } from "@/services/chart.service";
 import { TrendingUp } from "lucide-react";

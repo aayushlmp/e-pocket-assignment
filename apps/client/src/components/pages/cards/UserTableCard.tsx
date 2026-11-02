@@ -1,4 +1,4 @@
-import { DataTable } from "@/components/pages/DataTable";
+import { DataTable } from "@/components/pages/data-tables/DataTable";
 import type { DataTableColumn, DataTableFetchFn } from "@/interfaces";
 import { fetchUsers } from "@/services/user.service";
 import { Status } from "@e-pocket-assignment/shared/enums";

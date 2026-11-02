@@ -1,5 +1,5 @@
 import type { IUser } from "@e-pocket-assignment/shared/interfaces";
-import { UserAvatar } from "@/components/pages/UserAvatar";
+import { UserAvatar } from "@/components/pages/nav/UserAvatar";
 
 export interface UserInfoProps {
   user: IUser;

@@ -1,5 +1,5 @@
 
-import { UserDropdownMenuTrigger } from "@/components/pages/UserDropdownMenuTrigger";
+import { UserDropdownMenuTrigger } from "@/components/pages/nav/UserDropdownMenuTrigger";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,9 +7,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { UserNavInfo } from "@/components/pages/UserNavInfo";
+import { UserNavInfo } from "@/components/pages/nav/UserNavInfo";
 import type { IUser } from "@e-pocket-assignment/shared/interfaces";
-import { SignOutMenuItem } from "@/components/pages/SignOutMenuItem";
+import { SignOutMenuItem } from "@/components/pages/nav/SignOutMenuItem";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 

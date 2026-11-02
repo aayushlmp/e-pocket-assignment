@@ -9,12 +9,12 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { LayoutDashboard, BanknoteArrowUp } from "lucide-react";
-import { MainNavigation } from "@/components/pages/MainNavigation";
-import { Logo } from "@/components/pages/Logo";
+import { MainNavigation } from "@/components/pages/nav/MainNavigation";
+import { Logo } from "@/components/common/Logo";
 import { useAuth } from "@/contexts/AuthContext";
 import type { LucideIcon } from "lucide-react";
 import navigationData from "@/config/navigation.json";
-import { UserDropdownMenu } from "@/components/pages/UserDropdownMenu";
+import { UserDropdownMenu } from "@/components/pages/nav/UserDropdownMenu";
 
 const iconMap: Record<string, LucideIcon> = {
   LayoutDashboard,

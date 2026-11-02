@@ -7,7 +7,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import { CardWrapper } from "@/components/pages/CardWrapper";
+import { CardWrapper } from "@/components/pages/cards/CardWrapper";
 import {
   fetchTotalTransactions,
   fetchTotalTransferAmount,

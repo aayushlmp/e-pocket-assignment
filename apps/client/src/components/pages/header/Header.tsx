@@ -1,10 +1,10 @@
 import { Separator } from "@/components/ui/separator"
-import { SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useLocation } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import navigationData from "@/config/navigation.json"
-import { UserDropdownMenu } from "@/components/pages/UserDropdownMenu"
-import { UserAvatar } from "@/components/pages/UserAvatar"
+import { UserDropdownMenu } from "@/components/pages/nav/UserDropdownMenu"
+import { UserAvatar } from "@/components/pages/nav/UserAvatar"
 
 export const Header = () => {
   const { user, getUserInitials } = useAuth()

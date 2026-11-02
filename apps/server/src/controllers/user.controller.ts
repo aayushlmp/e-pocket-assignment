@@ -6,6 +6,8 @@ import { asyncHandler } from "../utils/async-handler.ts";
 import { Request, Response } from "express";
 import { UserRole } from "@e-pocket-assignment/shared/enums";
 import { PaginationQuery } from "../interfaces/query.interface.ts";
+import { ApiError } from "../utils/api-error.ts";
+import { AuthenticatedRequest } from "../interfaces/token.interface.ts";
 
 const userRepository = AppDataSource.getRepository(User);
 const userService = new UserService(userRepository);
@@ -36,4 +38,17 @@ const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
       .json(new ApiResponse(201, users, "Users fetched successfully"));
   }
 });
+const deleteById = asyncHandler(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { id } = req.params;
+    if (!id) {
+      throw new ApiError(404, `USER with ID ${id} not found`);
+    }
+    await userService.delete(id as string);
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "User deleted successfully"));
+  }
+);
 export { createUser, getAllUsers };

@@ -70,6 +70,25 @@ export class UserService {
       }
     }
   }
+  async delete(id: string) {
+    try {
+      const transaction = await this.userRepository.findOne({
+        where: { id },
+      });
+
+      if (!transaction) {
+        throw new ApiError(404, `USER with ID ${id} not found`);
+      }
+      return await this.userRepository.remove(transaction);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw new ApiError(
+          error.statusCode || 500,
+          error.message ?? "Failed to delete user details"
+        );
+      }
+    }
+  }
   async getAllUsers() {
     try {
       return await this.userRepository.find({

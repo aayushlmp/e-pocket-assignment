@@ -55,8 +55,7 @@ export const MetricsGrid = () => {
       title: "Total Transactions",
       value: metrics.total.toLocaleString(),
       icon: TrendingUp,
-      footer:
-        "The total number of transactions recorded across all users, including pending and completed transactions.",
+      footer:""
     },
     {
       title: "Total Transfer Amount",
@@ -66,22 +65,19 @@ export const MetricsGrid = () => {
         maximumFractionDigits: 2,
       }),
       icon: ArrowLeftRight,
-      footer:
-        "The cumulative monetary value of all transactions recorded in the system, regardless of transaction status.",
+      footer:""
     },
     {
       title: "Pending Transactions",
       value: metrics.pending.toLocaleString(),
       icon: Clock,
-      footer:
-        "Transactions that have been initiated but are still awaiting processing, confirmation, or a final status update.",
+      footer:""
     },
     {
       title: "Completed Transactions",
       value: metrics.completed.toLocaleString(),
       icon: CheckCircle,
-      footer:
-        "Transactions that have successfully reached the completed status and are no longer awaiting processing.",
+      footer: ""
     },
   ];
 

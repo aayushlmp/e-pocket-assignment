@@ -17,6 +17,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 
 import { createUser } from "@/services/user.service";
 import { validateEmail } from "@/utils";
@@ -86,6 +87,7 @@ const validateForm = (
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [userData, setUserData] =
     useState<SignUpFormData>(initialUserData);
@@ -121,6 +123,8 @@ const SignUp = () => {
 
     if (Object.values(errors).some(Boolean)) return;
 
+    setIsLoading(true);
+    
     try {
       const response = await createUser({
         ...userData,
@@ -131,6 +135,7 @@ const SignUp = () => {
       });
 
       if (response) {
+        setIsLoading(false);
         toast.success(
           response.data.message || "User added successfully"
         );
@@ -138,11 +143,14 @@ const SignUp = () => {
         navigate("/auth/login", { replace: true });
       }
     } catch (error: unknown) {
+      setIsLoading(false);
       toast.error(
         error instanceof Error
           ? error.message
           : "Unable to create account"
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -270,7 +278,13 @@ const SignUp = () => {
               </Field>
 
               <Field>
-                <Button type="submit">Sign up</Button>
+                <Button type="submit">
+                  {isLoading ? (
+                    <>
+                      <Spinner data-icon="inline-start" />Signing up...
+                    </>
+                  ) : 'Sign up'}
+                </Button>
 
                 <FieldDescription className="text-center text-xs">
                   Already have an account?{" "}

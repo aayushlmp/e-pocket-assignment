@@ -18,6 +18,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 
 import { signIn } from "@/services/auth.service";
 import { validateEmail } from "@/utils";
@@ -34,6 +35,7 @@ const initialErrors: ValidationErrors = {
 };
 
 const Login = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [validationErrors, setValidationErrors] =
@@ -80,7 +82,7 @@ const Login = () => {
     setValidationErrors(errors);
 
     if (errors.email || errors.password) return;
-
+    setIsLoading(true);
     try {
       const response = await signIn({
         email: email.trim(),
@@ -88,13 +90,17 @@ const Login = () => {
       });
 
       if (response) {
+        setIsLoading(false);
         toast.success(response.data.message || "Login successful");
         signInSuccessHandler(response.data.data);
       }
     } catch (error: unknown) {
+      setIsLoading(false);
       toast.error(
         error instanceof Error ? error.message : "Unable to login"
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -150,7 +156,13 @@ const Login = () => {
               </Field>
 
               <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit">
+                  {isLoading ? (
+                    <>
+                      <Spinner data-icon="inline-start" />Logging in...
+                    </>
+                  ) : 'Login'}
+                </Button>
 
                 <FieldDescription className="text-center text-xs">
                   Don't have an account?{" "}

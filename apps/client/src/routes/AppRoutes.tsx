@@ -1,12 +1,4 @@
-
 import { createBrowserRouter, Navigate } from "react-router-dom";
-
-import Login from "@/components/pages/Login";
-import SignUp from "@/components/pages/SignUp";
-import { Dashboard } from "@/components/pages/Dashboard";
-import UserDashboard from "@/components/pages/UserDashboard";
-import TransactionListCard from "@/components/pages/TransactionListCard";
-import { PageNotFound } from "@/components/pages/PageNotFound";
 
 import RouterOutlet from "@/routes/RouterOutlet";
 import RoleRedirect from "@/routes/RoleRedirect";
@@ -32,11 +24,21 @@ export const router = createBrowserRouter([
           },
           {
             path: "login",
-            element: <Login />,
+            lazy: async () => {
+              const { default: Login } = await import(
+                "@/components/pages/Login"
+              );
+              return { Component: Login };
+            },
           },
           {
             path: "signup",
-            element: <SignUp />,
+            lazy: async () => {
+              const { default: SignUp } = await import(
+                "@/components/pages/SignUp"
+              );
+              return { Component: SignUp };
+            },
           },
         ],
       },
@@ -45,38 +47,59 @@ export const router = createBrowserRouter([
 
   // Admin and SuperAdmin routes
   {
+    path: "/admin",
     element: (
       <RouterOutlet
         allowedRoles={[UserRole.ADMIN, UserRole.SUPER_ADMIN]}
       />
     ),
-    path: "/admin",
     children: [
       {
         path: "dashboard",
-        element: <Dashboard />,
+        lazy: async () => {
+          const { Dashboard } = await import(
+            "@/components/pages/Dashboard"
+          );
+          return { Component: Dashboard };
+        },
       },
       {
         path: "transactions",
-        element: <TransactionListCard />,
+        lazy: async () => {
+          const { default: TransactionListCard } = await import(
+            "@/components/pages/TransactionListCard"
+          );
+          return { Component: TransactionListCard };
+        },
       },
     ],
   },
 
   // User routes
   {
-    element: <RouterOutlet allowedRoles={[UserRole.USER]} />,
     path: "/dashboard",
+    element: <RouterOutlet allowedRoles={[UserRole.USER]} />,
     children: [
       {
         index: true,
-        element: <UserDashboard />,
+        lazy: async () => {
+          const { default: UserDashboard } = await import(
+            "@/components/pages/UserDashboard"
+          );
+          return { Component: UserDashboard };
+        },
       },
     ],
   },
 
+  // Not found
   {
     path: "*",
-    element: <PageNotFound />,
+    lazy: async () => {
+      const { PageNotFound } = await import(
+        "@/components/pages/PageNotFound"
+      );
+      return { Component: PageNotFound };
+    },
   },
 ]);

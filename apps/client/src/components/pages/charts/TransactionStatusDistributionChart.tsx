@@ -48,7 +48,7 @@ export const TransactionStatusDistributionChart = () => {
   }, []);
   return (
     <CardWrapper
-      className="w-full h-full md:flex-1 md:min-w-[max(320px,calc(50%-12px))] lg:min-w-[max(320px,calc(50%-16px))] max-w-full"
+      className="w-full md:flex-1 md:min-w-[max(320px,calc(50%-12px))] lg:min-w-[max(320px,calc(50%-16px))] max-w-full"
       key={card.title}
       title={card.title}
       description={<></>}

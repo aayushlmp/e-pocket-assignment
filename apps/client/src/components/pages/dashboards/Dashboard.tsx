@@ -11,12 +11,14 @@ export const Dashboard = () => {
         {/* Top metrics metrics block */}
         <MetricsGrid />
         
-        <div className="flex flex-wrap gap-6 w-full">
+        <div className="flex flex-wrap items-start gap-6 w-full">
           <TransactionStatusDistributionChart />
           <TransactionByCurrencyChart />
         </div>
         
+        <div className="mt-6 w-full">
         <UserTableCard />
+        </div>
       </Suspense>
   );
 };
